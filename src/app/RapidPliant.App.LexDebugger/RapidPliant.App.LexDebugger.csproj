@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F11F990A-634C-4CEA-83A0-5864B769FD34}</ProjectGuid>
+    <OutputType>library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>RapidPliant.App.LexDebugger</RootNamespace>
+    <AssemblyName>RapidPliant.App.LexDebugger</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\external_libs\Msagl\Msagl.Drawing\Msagl.Drawing.csproj">
+      <Project>{b76f8f71-4b00-4242-be36-c9f0732511f7}</Project>
+      <Name>Msagl.Drawing</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\external_libs\Msagl\Msagl.WpfGraphControl\Msagl.WpfGraphControl.csproj">
+      <Project>{fce1d24e-cc6b-47bc-9ce4-427e5d56b71e}</Project>
+      <Name>Msagl.WpfGraphControl</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\external_libs\Msagl\Msagl\Msagl.csproj">
+      <Project>{415d3e3f-7105-46c1-84d2-7ecb34213d92}</Project>
+      <Name>Msagl</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\repos\pliant\libraries\Pliant\Pliant.csproj">
+      <Project>{5c23805f-0ffc-4039-b853-e5acbe63a3c0}</Project>
+      <Name>Pliant</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\rapidpliant\RapidPliant.csproj">
+      <Project>{f93a8971-e693-4b33-ab85-5375840c128b}</Project>
+      <Name>RapidPliant</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RapidPliant.App\RapidPliant.App.csproj">
+      <Project>{060ee331-6438-4c84-abd7-8cfb846d63ac}</Project>
+      <Name>RapidPliant.App</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RapidPliant.Mvx\RapidPliant.Mvx.csproj">
+      <Project>{fa9d26a1-59eb-44a0-8b3b-3f10c7afcdb4}</Project>
+      <Name>RapidPliant.Mvx</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

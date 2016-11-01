@@ -1,0 +1,3 @@
+[submodule "repos/pliant"]
+	path = repos/pliant
+	url = https://github.com/bilsaboob/Pliant.git
