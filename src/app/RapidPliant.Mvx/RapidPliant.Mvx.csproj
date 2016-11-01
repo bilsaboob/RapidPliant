@@ -48,6 +48,19 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Binding\BindingExpressionConverter.cs" />
+    <Compile Include="Binding\BindingMarkupExtensionBase.cs" />
+    <Compile Include="Binding\BindTo.cs" />
+    <Compile Include="Binding\RapidBoundMember.cs" />
+    <Compile Include="Binding\RapidBindingDelegate.cs" />
+    <Compile Include="Binding\RapidBindingHelpers.cs" />
+    <Compile Include="Binding\RapidBindingPropertyValueProviderConverter.cs" />
+    <Compile Include="Binding\RapidBindingSerializationProperty.cs" />
+    <Compile Include="Controls\Extensions\set.cs" />
+    <Compile Include="Controls\RapidGrid.cs" />
+    <Compile Include="MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -61,6 +74,12 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="RapidMvx.cs" />
+    <Compile Include="RapidViewModel.cs" />
+    <Compile Include="Utils\ControlExtensions.cs" />
+    <Compile Include="Utils\ControlTemplateFactory.cs" />
+    <Compile Include="Utils\ReflectionExtensions.cs" />
+    <Compile Include="RapidView.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -70,6 +89,15 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Converters\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="MainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
