@@ -67,8 +67,11 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="RapidPliantApplication.cs" />
-    <Compile Include="ViewModels\MsaglGraphViewModel.cs" />
+    <Compile Include="Utils\ReusableNamesCollection.cs" />
     <Compile Include="ViewModels\MsaglDfaGraphViewModel.cs" />
+    <Compile Include="ViewModels\MsaglGraphViewModel.cs" />
+    <Compile Include="Msagl\MsaglDfaGraph.cs" />
+    <Compile Include="Msagl\MsaglNfaGraph.cs" />
     <Compile Include="ViewModels\MsaglNfaGraphViewModel.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

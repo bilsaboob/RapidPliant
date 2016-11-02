@@ -52,7 +52,7 @@ namespace RapidPliant.App.Msagl
                 if (nodeId < 0)
                     nodeId = GenerateNodeId(state);
 
-                nodeEntry = new NodeEntry(GenerateNodeId(state));
+                nodeEntry = new NodeEntry(nodeId);
                 nodeEntry.State = state;
 
                 _grahpNodesByState[state] = nodeEntry;
@@ -98,7 +98,11 @@ namespace RapidPliant.App.Msagl
 
         protected virtual string GetStateLabel(TState state)
         {
-            return state.ToString();
+            var nodeEntry = GetOrCreateNodeEntry(state);
+            if(nodeEntry == null)
+                return state.ToString();
+
+            return nodeEntry.NodeId.ToString();
         }
 
         protected virtual bool IsFinalState(TState state)
@@ -284,7 +288,7 @@ namespace RapidPliant.App.Msagl
         public Edge Edge { get; set; }
     }
 
-    public abstract class MsaglGraphModel<TState, TTransition> : MsaglGraph<TState, TTransition, MsaglGraphNode<TState, TTransition>, MsaglGraphNodeEdge<TState, TTransition>>
+    public abstract class MsaglGraph<TState, TTransition> : MsaglGraph<TState, TTransition, MsaglGraphNode<TState, TTransition>, MsaglGraphNodeEdge<TState, TTransition>>
     {
     }
 

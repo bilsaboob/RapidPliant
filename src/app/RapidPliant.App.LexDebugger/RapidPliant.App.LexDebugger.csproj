@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LexDebuggerApplication.cs" />
+    <Compile Include="Msagl\LexMsaglNfaGraph.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -67,6 +68,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="ViewModels\AppViewModel.cs" />
+    <Compile Include="ViewModels\LexMsaglNfaGraphViewModel.cs" />
+    <Compile Include="ViewModels\LexPatternViewModel.cs" />
     <Compile Include="Views\AppView.xaml.cs">
       <DependentUpon>AppView.xaml</DependentUpon>
     </Compile>

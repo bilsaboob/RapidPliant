@@ -1,10 +1,28 @@
 ﻿<RapidView x:Class="RapidPliant.App.LexDebugger.Views.AppView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
-    <RapidGrid>
+            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+            mc:Ignorable="d" 
+            d:DesignHeight="300" d:DesignWidth="300">
+    <RapidGrid Orientation="Vertical">
+
+        <RapidGrid Items="{Binding Path=LexPatterns}" set.Width="*" Orientation="Horizontal">
+            <TextBox set.Width="75" FontSize="20" FontFamily="Consolas" VerticalContentAlignment="Center" Margin="0 0 5 0" Text="{BindTo Name}"></TextBox>
+            <TextBox set.Width="*" FontSize="20" FontFamily="Consolas" VerticalContentAlignment="Center" Text="{BindTo Pattern}"></TextBox>
+            <Button FontSize="20" FontFamily="Consolas" VerticalContentAlignment="Center" Click="{BindTo root.RefreshPattern(this)}" Width="80">Rfresh</Button>
+            <Button FontSize="20" FontFamily="Consolas" VerticalContentAlignment="Center" Click="{BindTo root.RemovePattern(this)}">Remove</Button>
+        </RapidGrid>
+
+        <RapidGrid set.Width="*" Orientation="Horizontal">
+            <TextBox set.Width="75" FontSize="20" FontFamily="Consolas" VerticalContentAlignment="Center" Margin="0 0 5 0" Text="{BindTo NewLexPatternName}"></TextBox>
+            <TextBox set.Width="*" FontSize="20" FontFamily="Consolas" VerticalContentAlignment="Center" Text="{BindTo NewLexPatternPattern}"></TextBox>
+            <Button FontSize="20" FontFamily="Consolas" VerticalContentAlignment="Center" Click="{BindTo AddPattern}" Width="150">Add</Button>
+        </RapidGrid>
+
+        <RapidGrid set.Width="*" set.Height="*" Orientation="Horizontal">
+            <MsaglGraphView Graph="{BindTo LexNfaGraph.Graph}" set.Height="*" set.Width="*"></MsaglGraphView>
+        </RapidGrid>
+
     </RapidGrid>
 </RapidView>
