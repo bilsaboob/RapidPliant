@@ -49,6 +49,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppBootstrapper.cs" />
+    <Compile Include="Controls\MsaglGraphView.xaml.cs">
+      <DependentUpon>MsaglGraphView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Msagl\MsaglGraph.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -63,6 +67,9 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="RapidPliantApplication.cs" />
+    <Compile Include="ViewModels\MsaglGraphViewModel.cs" />
+    <Compile Include="ViewModels\MsaglDfaGraphViewModel.cs" />
+    <Compile Include="ViewModels\MsaglNfaGraphViewModel.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -86,6 +93,10 @@
       <Project>{415d3e3f-7105-46c1-84d2-7ecb34213d92}</Project>
       <Name>Msagl</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\repos\pliant\libraries\Pliant\Pliant.csproj">
+      <Project>{5c23805f-0ffc-4039-b853-e5acbe63a3c0}</Project>
+      <Name>Pliant</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\rapidpliant\RapidPliant.csproj">
       <Project>{f93a8971-e693-4b33-ab85-5375840c128b}</Project>
       <Name>RapidPliant</Name>
@@ -95,6 +106,13 @@
       <Name>RapidPliant.Mvx</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Page Include="Controls\MsaglGraphView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
