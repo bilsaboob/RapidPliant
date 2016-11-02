@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -10,246 +9,19 @@ using RapidPliant.Mvx.Utils;
 
 namespace RapidPliant.Mvx
 {
-    public class MvxContext
-    {
-        private RapidView _view;
-        private RapidViewModel _viewModel;
-        private List<RapidViewModel> _viewModels;
-        private List<MvxContext> _childContexts;
-
-        private bool _hasInitializedForView;
-        private bool _hasInitializedForViewModel;
-
-
-        public MvxContext(Type viewModelType, Type viewType)
-        {
-            ViewModelType = viewModelType;
-            ViewType = viewType;
-            _viewModels = new List<RapidViewModel>();
-            _childContexts = new List<MvxContext>();
-        }
-
-        public Type ViewModelType { get; private set; }
-
-        public RapidViewModel ViewModel
-        {
-            get { return _viewModel; }
-            set
-            {
-                var prevViewModel = _viewModel;
-
-                //Set the new viewmodel
-                _viewModel = value;
-
-                if (prevViewModel != null && prevViewModel.IsLoaded)
-                {
-                    if (prevViewModel != null)
-                    {
-                        //Unload previous viewmodel
-                        prevViewModel.Unload();
-                    }
-                }
-
-                if (!_hasInitializedForViewModel)
-                    return;
-
-                InitializedForViewModel();
-            }
-        }
-
-        private void InitializedForViewModel()
-        {
-            if (_viewModel != null)
-            {
-                //Bind the viewmodel context to this!
-                _viewModel.BindContext(this);
-            }
-
-            if (_view != null)
-            {
-                _view.BindViewModel(_viewModel);
-            }
-        }
-
-        public Type ViewType { get; private set; }
-
-        public RapidView View
-        {
-            get { return _view; }
-            set
-            {
-                _view = value;
-
-                if (!_hasInitializedForView)
-                    return;
-
-                InitializeForView();
-            }
-        }
-
-        private void InitializeForView()
-        {
-            //Bind the view to the viewmodel
-            if (_viewModel != null)
-            {
-                _viewModel.BindView(_view);
-            }
-
-            if (_view != null)
-            {
-                //Bind the context to this!
-                _view.BindContext(this);
-
-                //Bind viewmodel if exists
-                if (_viewModel != null)
-                {
-                    //Make sure the viewmodel is loaded!
-                    if (!_viewModel.IsLoaded)
-                    {
-                        _viewModel.Load();
-                    }
-                }
-            }
-        }
-
-        public MvxContext ParentContext { get; private set; }
-
-        public IEnumerable<MvxContext> ChildContexts
-        {
-            get { return _childContexts; }
-        }
-
-        public void BindParentContext(MvxContext parentContext)
-        {
-            var prevParentContext = ParentContext;
-            ParentContext = parentContext;
-
-            if (prevParentContext != null)
-            {
-                prevParentContext.RemoveChildContext(this);
-            }
-
-            if (ParentContext != null)
-            {
-                ParentContext.AddChildContext(this);
-            }
-        }
-
-        private void RemoveChildContext(MvxContext mvxContext)
-        {
-            _childContexts.Remove(mvxContext);
-        }
-
-        private void AddChildContext(MvxContext mvxContext)
-        {
-            if (!_childContexts.Contains(mvxContext))
-                _childContexts.Add(mvxContext);
-        }
-
-        public RapidViewModel GetOrCreateViewModel()
-        {
-            return GetOrCreateViewModel(ViewModelType);
-        }
-
-        public RapidViewModel GetOrCreateViewModel(Type viewModelType, bool create = true)
-        {
-            RapidViewModel viewModel = null;
-
-            var matchingViewModels = FindMatchingViewModels(viewModelType);
-            if (matchingViewModels != null && matchingViewModels.Count > 0)
-            {
-                //We have a viewmodel 
-                viewModel = ResolveBestViewModel(viewModelType, matchingViewModels);
-                return viewModel;
-            }
-
-            //Try getting from the parent!
-            if (ParentContext != null)
-            {
-                viewModel = ParentContext.GetOrCreateViewModel(viewModelType, false);
-            }
-
-            if (viewModel == null && create)
-            {
-                //No existing viewmodels to get - create a new one!
-                viewModel = CreateViewModel(viewModelType);
-                if (viewModel != null)
-                {
-                    AddViewModel(viewModel);
-                }
-            }
-
-            return viewModel;
-        }
-
-        private void AddViewModel(RapidViewModel viewModel)
-        {
-            _viewModels.Add(viewModel);
-        }
-
-        private RapidViewModel CreateViewModel(Type viewModelType)
-        {
-            var viewModel = Activator.CreateInstance(viewModelType);
-            return viewModel as RapidViewModel;
-        }
-
-        private RapidViewModel ResolveBestViewModel(Type viewModelType, List<RapidViewModel> viewModels)
-        {
-            var viewModelsByRelevance = new SortedList<int, RapidViewModel>();
-
-            foreach (var viewModel in viewModels)
-            {
-                var type = viewModel.GetType();
-                if (type == viewModelType)
-                {
-                    viewModelsByRelevance.Add(0, viewModel);
-                }
-                else
-                {
-                    var typeDistance = type.GetTypeDistanceTo(viewModelType);
-                    if (!viewModelsByRelevance.ContainsKey(typeDistance))
-                    {
-                        viewModelsByRelevance.Add(typeDistance, viewModel);
-                    }
-                }
-            }
-
-            //Get the first viewmodel - thats the one that matches best!
-            return viewModelsByRelevance.Values.FirstOrDefault();
-        }
-
-        private List<RapidViewModel> FindMatchingViewModels(Type viewModelType)
-        {
-            if (_viewModels.Count == 0)
-                return null;
-
-            var matchingViewModels = new List<RapidViewModel>();
-
-            foreach (var viewModel in _viewModels)
-            {
-                var type = viewModel.GetType();
-                if (viewModelType.IsAssignableFrom(type))
-                {
-                    matchingViewModels.Add(viewModel);
-                }
-            }
-
-            return matchingViewModels;
-        }
-
-        public void Initialize()
-        {
-            InitializedForViewModel();
-            InitializeForView();
-        }
-    }
-
     public static class RapidMvx
     {
         public static void Init()
         {
         }
 
+        /// <summary>
+        /// Loads/Initializes the specified control/view.
+        /// * Builds the mvx context hierarchy by traversing the child views of the control.
+        /// * Resolves the expected view models of the generated mvx context hierarchy
+        /// * Creates instances of the view model properties of view models that are resolved
+        /// </summary>
+        /// <param name="viewControl"></param>
         public static void LoadView(Control viewControl)
         {
             var view = viewControl as IRapidView;
@@ -264,7 +36,11 @@ namespace RapidPliant.Mvx
             InitializeContextsRecursive(rootContext);
         }
 
-        private static void InitializeContextsRecursive(MvxContext context)
+        /// <summary>
+        /// Initialize the mvx context, indirectly initializing the view / view model combination
+        /// </summary>
+        /// <param name="context"></param>
+        private static void InitializeContextsRecursive(RapidMvxContext context)
         {
             if (context == null)
                 return;
@@ -277,7 +53,13 @@ namespace RapidPliant.Mvx
             }
         }
 
-        private static MvxContext BuildMvxContextRecursive(DependencyObject viewControl, MvxContext parentContext)
+        /// <summary>
+        /// Builds the mvx context hierarchy recursively for the specified view control
+        /// </summary>
+        /// <param name="viewControl"></param>
+        /// <param name="parentContext"></param>
+        /// <returns></returns>
+        private static RapidMvxContext BuildMvxContextRecursive(DependencyObject viewControl, RapidMvxContext parentContext)
         {
             if (viewControl == null)
                 return parentContext;
@@ -285,7 +67,7 @@ namespace RapidPliant.Mvx
             var returnContext = parentContext;
 
             //Build the context for the current view
-            MvxContext context = null;
+            RapidMvxContext context = null;
             var view = viewControl as IRapidView;
             if (view != null)
             {
@@ -328,7 +110,11 @@ namespace RapidPliant.Mvx
             return returnContext;
         }
 
-        private static void ResolveViewModelsRecursive(MvxContext context)
+        /// <summary>
+        /// Resolves the view models of the specified mvx context hierarchy, creating instances for the view model properties of any resolved view model.
+        /// </summary>
+        /// <param name="context"></param>
+        private static void ResolveViewModelsRecursive(RapidMvxContext context)
         {
             if (context == null)
                 return;
@@ -352,7 +138,12 @@ namespace RapidPliant.Mvx
             }
         }
 
-        private static void ResolveViewModelMembers(MvxContext context, RapidViewModel viewModel)
+        /// <summary>
+        /// Resolves the view model properties of the specified view model, by querying the context for an appropriate view model
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="viewModel"></param>
+        private static void ResolveViewModelMembers(RapidMvxContext context, RapidViewModel viewModel)
         {
             var properties = viewModel.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();
             var viewModelProperties = properties.Where(p => typeof(RapidViewModel).IsAssignableFrom(p.PropertyType)).ToList();
@@ -370,15 +161,25 @@ namespace RapidPliant.Mvx
             }
         }
 
-        private static MvxContext CreateContextForView(IRapidView view)
+        /// <summary>
+        /// Creates an mvx context for the specifed view
+        /// </summary>
+        /// <param name="view"></param>
+        /// <returns></returns>
+        private static RapidMvxContext CreateContextForView(IRapidView view)
         {
             var viewModelType = view.ViewModelType;
             var viewType = view.GetType();
 
-            var context = new MvxContext(viewModelType, viewType);
+            var context = new RapidMvxContext(viewModelType, viewType);
             return context;
         }
 
+        /// <summary>
+        /// Evaluates the specified view type, trying to resolve the expected view model type for the generic IRapidView<TViewModel> interface
+        /// </summary>
+        /// <param name="viewType"></param>
+        /// <returns></returns>
         public static Type GetViewModelTypeForView(Type viewType)
         {
             var viewModelType = viewType.GetInterfaces().Where(t => {
@@ -395,6 +196,11 @@ namespace RapidPliant.Mvx
             return viewModelType;
         }
 
+        /// <summary>
+        /// Creates a view model of expected type for the specified view type
+        /// </summary>
+        /// <param name="viewType"></param>
+        /// <returns></returns>
         public static RapidViewModel CreateViewModelForView(Type viewType)
         {
             var viewModelType = GetViewModelTypeForView(viewType);
@@ -405,6 +211,11 @@ namespace RapidPliant.Mvx
             return GetOrCreateViewModel(viewModelType);
         }
 
+        /// <summary>
+        /// Gets an existing view model of the specified type or creates/resolves a new instance.
+        /// </summary>
+        /// <param name="viewModelType"></param>
+        /// <returns></returns>
         public static RapidViewModel GetOrCreateViewModel(Type viewModelType)
         {
             var viewModel = Activator.CreateInstance(viewModelType);

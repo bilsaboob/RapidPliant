@@ -18,6 +18,10 @@ namespace RapidPliant.Mvx
     public class RapidViewModel : IRapidViewModel
     {
         private static readonly PropertyEntry _nullPropertyEntry = new NullPropertyEntry();
+
+        /// <summary>
+        /// The properties contained within this view model
+        /// </summary>
         private Dictionary<string, PropertyEntry> _propertyEntries;
 
         public RapidViewModel()
@@ -25,32 +29,61 @@ namespace RapidPliant.Mvx
             _propertyEntries = new Dictionary<string, PropertyEntry>();
         }
 
-        public MvxContext Context { get; private set; }
+        /// <summary>
+        /// The mvx context associated with this view, holds dependency information regarding the expected viewmodel / view combination
+        /// </summary>
+        public RapidMvxContext Context { get; private set; }
 
+        /// <summary>
+        /// Specifies wether the view model has been loaded or not
+        /// </summary>
         public bool IsLoaded { get; protected set; }
 
+        /// <summary>
+        /// Specifies wether a view has been bound to the view model or not
+        /// </summary>
         protected bool HasView { get; private set; }
+
+        /// <summary>
+        /// The view that is bound to the view model, only a single view can be bound at a time
+        /// </summary>
         protected RapidView View { get; private set; }
 
+        /// <summary>
+        /// Loads the data for the view model, allows view models handle loading logic themselves
+        /// </summary>
         public void Load()
         {
             IsLoaded = true;
             LoadData();
         }
 
+        /// <summary>
+        /// Loads / Instantiates any required "sub viewmodels" - allows view model to do custom instantiation beside any other "by convention" automagic loading
+        /// </summary>
         public virtual void LoadViewModels()
         {
         }
 
+        /// <summary>
+        /// Override to load the data, is triggered during the Load phase - usually soon after the view model is created and before any view is displayed
+        /// </summary>
         protected virtual void LoadData()
         {
         }
 
+        /// <summary>
+        /// Override to unload data, is triggered during Unload phase - when the view model goes "out of context", such as when the the view is "unbound"
+        /// </summary>
         public virtual void Unload()
         {
         }
 
-        public void BindContext(MvxContext context)
+        /// <summary>
+        /// Binds the specified mvx context, binding the view from the context to this view model
+        /// </summary>
+        /// <param name="context"></param>
+        public void BindContext(RapidMvxContext context)
         {
             if (Context == context)
                 return;
@@ -66,24 +99,52 @@ namespace RapidPliant.Mvx
             BindView(view);
         }
 
+        /// <summary>
+        /// Binds the specified view to this view model
+        /// </summary>
+        /// <param name="view"></param>
         public void BindView(RapidView view)
         {
             View = view;
             HasView = view != null;
         }
 
+        #region INotifyPropertyChange
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        #endregion
+
+        #region View model property get/set helpers
+        /// <summary>
+        /// Sets the value for the property and trigges PropertyChanged event
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="memberExpression"></param>
+        /// <param name="value"></param>
         protected void set<TValue>(Expression<Func<TValue>> memberExpression, TValue value)
         {
             var prop = GetOrCreateProperyEntry(memberExpression);
             prop.SetValueAndNotify(this, value);
         }
 
+        /// <summary>
+        /// Gets the value of the specified property.
+        /// </summary>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="memberExpression"></param>
+        /// <returns></returns>
         protected TValue get<TValue>(Expression<Func<TValue>> memberExpression)
         {
             var prop = GetOrCreateProperyEntry(memberExpression);
             return prop.GetValue<TValue>();
         }
+        #endregion
 
+        #region helpers
         private PropertyEntry GetOrCreateProperyEntry<TValue>(Expression<Func<TValue>> memberExpression)
         {
             var propInfo = this.GetPropertyInfo(memberExpression);
@@ -148,15 +209,6 @@ namespace RapidPliant.Mvx
             public override object Value { get { return null; } protected set { } }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-
-    public class NullViewModel : RapidViewModel
-    {
+        #endregion
     }
 }
