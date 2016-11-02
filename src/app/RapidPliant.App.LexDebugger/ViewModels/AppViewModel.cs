@@ -72,6 +72,8 @@ namespace RapidPliant.App.LexDebugger.ViewModels
             var nameEntry = lexPattern.NameEntry;
             if (nameEntry != null)
                 PatternNames.ReleaseName(nameEntry);
+
+            RefreshGraphs();
         }
 
         public void RefreshPattern(LexPatternViewModel lexPattern)

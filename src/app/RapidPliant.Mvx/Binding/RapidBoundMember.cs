@@ -141,10 +141,12 @@ namespace RapidPliant.Mvx.Binding
 
             if (pathIter.Current.Name == "root")
             {
+                pathIter.MoveNext();
                 target = rootDataContext;
             }
             else if (pathIter.Current.Name == "this")
             {
+                pathIter.MoveNext();
                 target = thisDataContext;
             }
 
@@ -158,7 +160,7 @@ namespace RapidPliant.Mvx.Binding
         protected PathPart ResolvePath(ref object target, PathIterator pathIter)
         {
             PathPart lastPart = pathIter.Current;
-            while (pathIter.MoveNext())
+            while (true)
             {
                 var part = pathIter.Current;
                 lastPart = part;
@@ -173,6 +175,9 @@ namespace RapidPliant.Mvx.Binding
 
                 target = prop.GetValue(target);
                 if (target == null)
+                    break;
+
+                if(!pathIter.MoveNext())
                     break;
             }
 
@@ -205,7 +210,7 @@ namespace RapidPliant.Mvx.Binding
         protected PathPart ResolvePath(ref object target, PathIterator pathIter)
         {
             PathPart lastPart = pathIter.Current;
-            while (pathIter.MoveNext())
+            while (true)
             {
                 var part = pathIter.Current;
                 lastPart = part;
@@ -218,6 +223,9 @@ namespace RapidPliant.Mvx.Binding
                 target = prop.GetValue(target);
                 if (target == null)
                     break;
+
+                if(!pathIter.MoveNext())
+                    break;
             }
 
             return lastPart;
@@ -225,9 +233,27 @@ namespace RapidPliant.Mvx.Binding
 
         private void EvalActionMethod(object rootDataContext, object thisDataContext, object target, PathIterator pathIter)
         {
-            Root = rootDataContext;
-            Target = thisDataContext;
+            if (!pathIter.IsStarted && !pathIter.MoveNext())
+            {
+                return;
+            }
 
+            Root = rootDataContext;
+            if (pathIter.Current.Name == "root")
+            {
+                pathIter.MoveNext();
+                Target = rootDataContext;
+            }
+            else if (pathIter.Current.Name == "this")
+            {
+                pathIter.MoveNext();
+                Target = thisDataContext;
+            }
+            else
+            {
+                Target = thisDataContext;
+            }
+            
             //Get the last part
             var lastPart = ResolvePath(ref target, pathIter);
 

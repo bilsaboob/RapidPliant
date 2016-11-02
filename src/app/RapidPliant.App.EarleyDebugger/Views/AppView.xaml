@@ -5,6 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <RapidGrid>
+    <RapidGrid Orientation="Vertical">
+        
+        <ComboBox ItemsSource="{BindTo Grammars}" SelectedItem="{BindTo Grammar}" DisplayMemberPath="Name"></ComboBox>
+        
+        <RapidGrid Orientation="Horizontal">
+            <Button Click="{BindTo StartParsing()}">Start</Button>
+            <Button Click="{BindTo ResetParsing()}">Reset</Button>
+
+            <Button Click="{BindTo ParseRunner.ScanNext()}">Scan next</Button>
+            <Button Click="{BindTo ParseRunner.LexNext()}">Lex next</Button>
+        </RapidGrid>
     </RapidGrid>
 </RapidView>

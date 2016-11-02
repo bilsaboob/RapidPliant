@@ -7,7 +7,7 @@
             d:DesignHeight="300" d:DesignWidth="300">
     <RapidGrid Orientation="Vertical">
 
-        <RapidGrid Items="{Binding Path=LexPatterns}" set.Width="*" Orientation="Horizontal">
+        <RapidGrid Items="{BindTo LexPatterns}" set.Width="*" Orientation="Horizontal">
             <TextBox set.Width="75" FontSize="20" FontFamily="Consolas" VerticalContentAlignment="Center" Margin="0 0 5 0" Text="{BindTo Name}"></TextBox>
             <TextBox set.Width="*" FontSize="20" FontFamily="Consolas" VerticalContentAlignment="Center" Text="{BindTo Pattern}"></TextBox>
             <Button FontSize="20" FontFamily="Consolas" VerticalContentAlignment="Center" Click="{BindTo root.RefreshPattern(this)}" Width="80">Rfresh</Button>
@@ -21,8 +21,8 @@
         </RapidGrid>
 
         <RapidGrid set.Width="*" set.Height="*" Orientation="Horizontal">
-            <MsaglGraphView Graph="{BindTo LexGraphs.NfaGraph}" set.Height="*" set.Width="*"></MsaglGraphView>
-            <MsaglGraphView Graph="{BindTo LexGraphs.DfaGraph}" set.Height="*" set.Width="*"></MsaglGraphView>
+            <MsaglGraphView Graph="{BindTo root.LexGraphs.NfaGraph}" set.Height="*" set.Width="*"></MsaglGraphView>
+            <MsaglGraphView Graph="{BindTo root.LexGraphs.DfaGraph}" set.Height="*" set.Width="*"></MsaglGraphView>
         </RapidGrid>
 
     </RapidGrid>
