@@ -12,12 +12,6 @@ namespace RapidPliant.App.ViewModels
         {
         }
         
-        protected override int GetStateId(IDfaState state)
-        {
-            throw new NotImplementedException();
-            //return state.Id;
-        }
-
         protected override IEnumerable<IDfaTransition> GetStateTransitions(IDfaState state)
         {
             return state.Transitions;
@@ -28,10 +22,13 @@ namespace RapidPliant.App.ViewModels
             return transition.Target;
         }
 
-        protected override string GetStateLabel(IDfaState state)
+        protected override bool IsFinalState(IDfaState state)
         {
-            throw new NotImplementedException();
-            //return state.Id.ToString();
+            var isFinal = base.IsFinalState(state);
+            if (isFinal)
+                return true;
+
+            return state.IsFinal;
         }
     }
 }

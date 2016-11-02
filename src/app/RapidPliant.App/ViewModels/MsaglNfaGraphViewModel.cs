@@ -12,12 +12,6 @@ namespace RapidPliant.App.ViewModels
         {
         }
         
-        protected override int GetStateId(INfaState state)
-        {
-            throw new NotImplementedException();
-            //return state.Id;
-        }
-
         protected override IEnumerable<INfaTransition> GetStateTransitions(INfaState state)
         {
             return state.Transitions;
@@ -26,12 +20,6 @@ namespace RapidPliant.App.ViewModels
         protected override INfaState GetTransitionToState(INfaTransition transition)
         {
             return transition.Target;
-        }
-
-        protected override string GetStateLabel(INfaState state)
-        {
-            throw new NotImplementedException();
-            //return state.Id.ToString();
         }
     }
 }

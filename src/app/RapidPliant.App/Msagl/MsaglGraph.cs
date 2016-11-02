@@ -7,11 +7,13 @@ using Microsoft.Msagl.Drawing;
 namespace RapidPliant.App.Msagl
 {
     public abstract class MsaglGraph<TState, TTransition, TNode, TEdge>
-    where TNode : MsaglGraphNode<TState, TTransition, TNode, TEdge>, new()
-    where TEdge : MsaglGraphNodeEdge<TState, TTransition, TNode, TEdge>, new()
+        where TNode : MsaglGraphNode<TState, TTransition, TNode, TEdge>, new()
+        where TEdge : MsaglGraphNodeEdge<TState, TTransition, TNode, TEdge>, new()
     {
         protected Graph _graph;
-        protected Dictionary<int, TNode> _graphNodes;
+        protected Dictionary<int, NodeEntry> _graphNodesById;
+        protected Dictionary<TState, NodeEntry> _grahpNodesByState;
+        protected int _nextStateId;
 
         public MsaglGraph()
         {
@@ -22,11 +24,41 @@ namespace RapidPliant.App.Msagl
         public void Build(IEnumerable<TState> states)
         {
             _graph = CreateGraph();
-            _graphNodes = new Dictionary<int, TNode>();
+            _graphNodesById = new Dictionary<int, NodeEntry>();
+            _grahpNodesByState = new Dictionary<TState, NodeEntry>();
+            _nextStateId = 1;
 
+            CreateStateEntries(states);
+            
             CreateTransitions(states);
 
             ConfigureNodes();
+        }
+
+        private void CreateStateEntries(IEnumerable<TState> states)
+        {
+            foreach (var state in states)
+            {
+                GetOrCreateNodeEntry(state);
+            }
+        }
+
+        private NodeEntry GetOrCreateNodeEntry(TState state)
+        {
+            NodeEntry nodeEntry;
+            if (!_grahpNodesByState.TryGetValue(state, out nodeEntry))
+            {
+                var nodeId = GetStateId(state);
+                if (nodeId < 0)
+                    nodeId = GenerateNodeId(state);
+
+                nodeEntry = new NodeEntry(GenerateNodeId(state));
+                nodeEntry.State = state;
+
+                _grahpNodesByState[state] = nodeEntry;
+                _graphNodesById[nodeId] = nodeEntry;
+            }
+            return nodeEntry;
         }
 
         protected virtual Graph CreateGraph()
@@ -36,9 +68,9 @@ namespace RapidPliant.App.Msagl
 
         private void ConfigureNodes()
         {
-            foreach (var graphNode in _graphNodes.Values)
+            foreach (var nodeEntry in _graphNodesById.Values)
             {
-                ConfigureNode(graphNode);
+                ConfigureNode(nodeEntry.Node);
             }
         }
 
@@ -101,17 +133,19 @@ namespace RapidPliant.App.Msagl
 
         protected TNode GetOrCreateGraphNode(TState state)
         {
-            TNode stateNode;
-            var stateId = GetStateId(state);
-            if (!_graphNodes.TryGetValue(stateId, out stateNode))
-            {
-                stateNode = CreateGraphNode(state);
-                stateNode.State = state;
-                stateNode.StateId = stateId;
+            var nodeEntry = GetOrCreateNodeEntry(state);
+            var node = nodeEntry.Node;
 
-                _graphNodes[stateId] = stateNode;
+            if (node == null)
+            {
+                node = CreateGraphNode(state);
+                node.State = state;
+                node.StateId = nodeEntry.NodeId;
+
+                nodeEntry.Node = node;
             }
-            return stateNode;
+
+            return node;
         }
 
         protected virtual TNode CreateGraphNode(TState state)
@@ -119,7 +153,15 @@ namespace RapidPliant.App.Msagl
             return new TNode();
         }
 
-        protected abstract int GetStateId(TState state);
+        protected virtual int GenerateNodeId(TState state)
+        {
+            return _nextStateId++;
+        }
+
+        protected virtual int GetStateId(TState state)
+        {
+            return -1;
+        }
 
         protected void CreateTransitionGraphEdge(TState fromState, TTransition transition)
         {
@@ -174,6 +216,23 @@ namespace RapidPliant.App.Msagl
 
             return trans.ToString();
         }
+
+        #region helper classes
+
+        protected class NodeEntry
+        {
+            public NodeEntry(int nodeId)
+            {
+                NodeId = nodeId;
+            }
+
+            public int NodeId { get; set; }
+            public TNode Node { get; set; }
+            public TState State { get; set; }
+        }
+
+        #endregion
+
     }
 
     public class MsaglGraphNode<TState, TTransition, TNode, TEdge>
