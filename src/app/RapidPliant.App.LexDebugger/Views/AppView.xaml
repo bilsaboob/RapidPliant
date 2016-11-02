@@ -21,7 +21,8 @@
         </RapidGrid>
 
         <RapidGrid set.Width="*" set.Height="*" Orientation="Horizontal">
-            <MsaglGraphView Graph="{BindTo LexNfaGraph.Graph}" set.Height="*" set.Width="*"></MsaglGraphView>
+            <MsaglGraphView Graph="{BindTo LexGraphs.NfaGraph}" set.Height="*" set.Width="*"></MsaglGraphView>
+            <MsaglGraphView Graph="{BindTo LexGraphs.DfaGraph}" set.Height="*" set.Width="*"></MsaglGraphView>
         </RapidGrid>
 
     </RapidGrid>

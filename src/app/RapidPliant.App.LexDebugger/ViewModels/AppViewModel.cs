@@ -19,10 +19,10 @@ namespace RapidPliant.App.LexDebugger.ViewModels
             NewLexPatternName = NewLexPatternNameEntry.Name;
         }
 
-        public LexMsaglNfaGraphViewModel LexNfaGraph
+        public LexMsaglNfaDfaGraphViewModel LexGraphs
         {
-            get { return get(() => LexNfaGraph); }
-            set { set(()=> LexNfaGraph, value);}
+            get { return get(() => LexGraphs); }
+            set { set(()=> LexGraphs, value);}
         }
 
         public ObservableCollection<LexPatternViewModel> LexPatterns
@@ -81,7 +81,7 @@ namespace RapidPliant.App.LexDebugger.ViewModels
 
         private void RefreshGraphs()
         {
-            LexNfaGraph.RefreshLexPatterns(LexPatterns);
+            LexGraphs.RefreshLexPatterns(LexPatterns);
         }
     }
 }

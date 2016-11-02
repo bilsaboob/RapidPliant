@@ -14,11 +14,5 @@ namespace RapidPliant.App.ViewModels
         public MsaglGraphViewModel()
         {
         }
-
-        public Graph Graph
-        {
-            get { return get(() => Graph); }
-            set { set(() => Graph, value); }
-        }
     }
 }
