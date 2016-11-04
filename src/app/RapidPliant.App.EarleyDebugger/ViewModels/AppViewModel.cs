@@ -51,6 +51,17 @@ namespace RapidPliant.App.EarleyDebugger.ViewModels
 
         public ObservableCollection<GrammarViewModel> Grammars { get { return get(() => Grammars); } set { set(() => Grammars, value); } }
 
+        public bool IsStarted { get { return get(() => IsStarted); } set { set(() => IsStarted, value); } }
+
+        public string ParseInput
+        {
+            get { return get(() => ParseInput); }
+            set
+            {
+                set(() => ParseInput, value);
+            }
+        }
+
         public string SeletedGrammarName
         {
             get { return get(() => SeletedGrammarName); }
@@ -62,20 +73,31 @@ namespace RapidPliant.App.EarleyDebugger.ViewModels
             }
         }
 
-        public string ParseInput { get { return get(() => ParseInput); } set { set(() => ParseInput, value); } }
-
-        public void StartParsing()
+        public void StartOrRestartParsing()
         {
-            if (ParseInput == null)
-                ParseInput = "";
-
-            ResetParsing();
+            if (IsStarted)
+            {
+                RestartParsing();
+            }
+            else
+            {
+                StartParsing();
+                IsStarted = true;
+            }
         }
 
-        public void ResetParsing()
+        private void StartParsing()
+        {
+            if (ParseInput == null)
+                ParseInput = "test";
+
+            RestartParsing();
+        }
+
+        public void RestartParsing()
         {
             //Reload the grammar view model
-            Grammar = new GrammarViewModel();
+            _grammar = _grammarService.GetGrammarByType(Grammar.GrammarType);
             Grammar.LoadGrammar(_grammar);
 
             //Initialize the parse engine and runner
@@ -85,6 +107,14 @@ namespace RapidPliant.App.EarleyDebugger.ViewModels
             _parseRunner = new ParseRunner(_parseEngine, ParseInput);
             ParseRunner.LoadParseRunner(_parseRunner);
             ParseRunner.ParseEngine = ParseEngine;
+        }
+
+        public void ScanNext()
+        {
+        }
+
+        public void LexNext()
+        {
         }
     }
 }
