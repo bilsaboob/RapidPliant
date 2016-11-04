@@ -16,7 +16,7 @@ namespace RapidPliant.Mvx.Binding
 
         public PathIterator(string path)
         {
-            Parts = ParsePathParts(path);
+            Parts = ParsePathPartsWithExpressions(path);
             _index = 0;
         }
 
@@ -24,6 +24,33 @@ namespace RapidPliant.Mvx.Binding
         {
             Parts = parts.ToArray();
             _index = 0;
+        }
+
+        private PathPart[] ParsePathPartsWithExpressions(string path)
+        {
+            var ifElseParts = path.Split(new[] { '?' }, StringSplitOptions.RemoveEmptyEntries);
+            if (ifElseParts.Length == 2)
+            {
+                //some?x:y
+                var ifParts = ParsePathPartsWithExpressions(ifElseParts[0]);
+                var evalParts = ifElseParts[1].Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                var thenParts = ParsePathPartsWithExpressions(evalParts[0]);
+                var elseParts = ParsePathPartsWithExpressions(evalParts[1]);
+                return new [] { new IfThenElsePathPart(ifParts, thenParts, elseParts) };
+            }
+
+            var negated = path.StartsWith("!");
+            if (negated)
+            {
+                path = path.Substring(1);
+                var parts = ParsePathPartsWithExpressions(path);
+                return new [] { new NegatedPathPart(parts) };
+            }
+
+            else
+            {
+                return ParsePathParts(path);
+            }
         }
 
         private PathPart[] ParsePathParts(string path)
@@ -87,7 +114,7 @@ namespace RapidPliant.Mvx.Binding
             return false;
         }
     }
-
+    
     public class PathPart
     {
         public PathPart()
@@ -106,6 +133,30 @@ namespace RapidPliant.Mvx.Binding
         }
     }
 
+    public class IfThenElsePathPart : PathPart
+    {
+        public IfThenElsePathPart(PathPart[] ifParts, PathPart[] thenParts, PathPart[] elseParts)
+        {
+            IfPathParts = ifParts;
+            ThenPathParts = thenParts;
+            ElsePathParts = elseParts;
+        }
+
+        public PathPart[] IfPathParts { get; set; }
+        public PathPart[] ThenPathParts { get; set; }
+        public PathPart[] ElsePathParts { get; set; }
+    }
+
+    public class NegatedPathPart : PathPart
+    {
+        public NegatedPathPart(PathPart[] pathParts)
+        {
+            PathParts = pathParts;
+        }
+
+        public PathPart[] PathParts { get; set; }
+    }
+
     public class PropertyWithPath
     {
         public PropertyWithPath()
@@ -114,9 +165,15 @@ namespace RapidPliant.Mvx.Binding
 
         public object GetPropertyValue(object rootDataContext, object thisDataContext, object target, PathIterator pathIter)
         {
-            var targetProperty = ResolveTargetProperty(rootDataContext, thisDataContext, ref target, pathIter);
+            PathPart lastPathPart;
+            var targetProperty = ResolveTargetProperty(rootDataContext, thisDataContext, ref target, pathIter, out lastPathPart);
             if (targetProperty == null)
+            {
+                if (lastPathPart != null)
+                    return lastPathPart.Name;
+
                 return null;
+            }
 
             var value = targetProperty.GetValue(target);
             return value;
@@ -124,16 +181,24 @@ namespace RapidPliant.Mvx.Binding
 
         public object SetPropertyValue(object rootDataContext, object thisDataContext, object target, PathIterator pathIter, object value)
         {
-            var targetProperty = ResolveTargetProperty(rootDataContext, thisDataContext, ref target, pathIter);
+            PathPart lastPathPart;
+            var targetProperty = ResolveTargetProperty(rootDataContext, thisDataContext, ref target, pathIter, out lastPathPart);
             if (targetProperty == null)
+            {
+                if (lastPathPart != null)
+                    return lastPathPart.Name;
+
                 return null;
+            }
 
             targetProperty.SetValue(target, value);
             return value;
         }
 
-        private PropertyInfo ResolveTargetProperty(object rootDataContext, object thisDataContext, ref object target, PathIterator pathIter)
+        private PropertyInfo ResolveTargetProperty(object rootDataContext, object thisDataContext, ref object target, PathIterator pathIter, out PathPart lastPathPart)
         {
+            lastPathPart = null;
+
             if (!pathIter.IsStarted && !pathIter.MoveNext())
             {
                 return null;
@@ -150,24 +215,35 @@ namespace RapidPliant.Mvx.Binding
                 target = thisDataContext;
             }
 
-            var lastMemberPart = ResolvePath(ref target, pathIter);
-            if (lastMemberPart == null)
+            lastPathPart = ResolvePath(ref target, pathIter);
+            if (lastPathPart == null)
                 return null;
-
-            return target.GetType().GetProperty(lastMemberPart.Name);
+            
+            return target.GetType().GetProperty(lastPathPart.Name);
         }
 
         protected PathPart ResolvePath(ref object target, PathIterator pathIter)
         {
+            if (!pathIter.IsStarted && !pathIter.MoveNext())
+            {
+                return null;
+            }
+
             PathPart lastPart = pathIter.Current;
             while (true)
             {
                 var part = pathIter.Current;
                 lastPart = part;
 
+                var ifElsePart = part as IfThenElsePathPart;
+                if (ifElsePart != null)
+                {
+                    return ResolveIfThenElsePath(ref target, ifElsePart);
+                }
+
                 if (pathIter.IsLast)
                     break;
-
+                
                 var memberName = part.Name;
                 var prop = target.GetType().GetProperty(memberName);
                 if (prop == null)
@@ -182,6 +258,45 @@ namespace RapidPliant.Mvx.Binding
             }
 
             return lastPart;
+        }
+
+        private PathPart ResolveIfThenElsePath(ref object target, IfThenElsePathPart ifElsePart)
+        {
+            var negate = false;
+            var ifParts = ifElsePart.IfPathParts;
+            if (ifElsePart.IfPathParts.Length == 1)
+            {
+                var negatedPart = ifElsePart.IfPathParts[0] as NegatedPathPart;
+                if (negatedPart != null)
+                {
+                    negate = true;
+                    ifParts = negatedPart.PathParts;
+                }
+            }
+
+            var ifElseTarget = target;
+            var ifPathIter = new PathIterator(ifParts);
+            var path = ResolvePath(ref ifElseTarget, ifPathIter);
+
+            var memberName = path.Name;
+            var prop = target.GetType().GetProperty(memberName);
+            if (prop == null)
+                return null;
+
+            if (prop.PropertyType != typeof(bool))
+                return null;
+
+            var val = (bool)prop.GetValue(target);
+            if (negate) val = !val;
+
+            if (val)
+            {
+                return ResolvePath(ref target, new PathIterator(ifElsePart.ThenPathParts));
+            }
+            else
+            {
+                return ResolvePath(ref target, new PathIterator(ifElsePart.ElsePathParts));
+            }
         }
     }
 

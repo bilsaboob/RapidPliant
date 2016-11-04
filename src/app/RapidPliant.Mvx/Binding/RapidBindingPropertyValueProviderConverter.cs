@@ -134,20 +134,24 @@ namespace RapidPliant.Mvx.Binding
         {
             EnsureInitialized();
 
+            if (ActualPath.Path.StartsWith("!"))
+            {
+                
+            }
             var pathIter = new PathIterator(ActualPath.Path);
             var targetViewModel = GetTargetViewModel(pathIter);
             if (targetViewModel != null)
             {
-                value = GetPathValue(pathIter);
+                value = GetPathValue(pathIter, targetViewModel);
             }
 
             return value;
         }
 
-        private object GetPathValue(PathIterator path)
+        private object GetPathValue(PathIterator path, object targetViewModel)
         {
             var prop = new PropertyWithPath();
-            return prop.GetPropertyValue(RootViewModel, TargetViewModel, TargetViewModel, path);
+            return prop.GetPropertyValue(RootViewModel, TargetViewModel, targetViewModel, path);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -158,16 +162,16 @@ namespace RapidPliant.Mvx.Binding
             var targetViewModel = GetTargetViewModel(pathIter);
             if (targetViewModel != null)
             {
-                value = SetPathValue(pathIter, value);
+                value = SetPathValue(pathIter, targetViewModel, value);
             }
 
             return value;
         }
 
-        private object SetPathValue(PathIterator path, object value)
+        private object SetPathValue(PathIterator path, object targetViewModel, object value)
         {
             var prop = new PropertyWithPath();
-            return prop.SetPropertyValue(RootViewModel, TargetViewModel, TargetViewModel, path, value);
+            return prop.SetPropertyValue(RootViewModel, TargetViewModel, targetViewModel, path, value);
         }
 
         private object GetTargetViewModel(PathIterator path)
@@ -180,7 +184,7 @@ namespace RapidPliant.Mvx.Binding
                 }
             }
 
-            return TargetViewModel;
+            return TargetViewModel ?? RootViewModel;
         }
 
         private INotifyPropertyChanged _initializedTargetViewModel;
