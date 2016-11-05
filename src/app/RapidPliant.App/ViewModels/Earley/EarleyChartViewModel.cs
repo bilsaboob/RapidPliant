@@ -41,6 +41,11 @@ namespace RapidPliant.App.ViewModels.Earley
             return EarleySets[location];
         }
 
+        public EarleySetViewModel GetLastEarleySet()
+        {
+            return EarleySets.LastOrDefault();
+        }
+
         public void RefreshFromChart()
         {
             //Add any new earley sets!
@@ -61,5 +66,6 @@ namespace RapidPliant.App.ViewModels.Earley
             return set;
         }
         #endregion
+        
     }
 }

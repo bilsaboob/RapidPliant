@@ -79,9 +79,8 @@
     <Compile Include="ViewModels\Earley\EarleyStateViewModel.cs" />
     <Compile Include="ViewModels\Earley\ProductionViewModel.cs" />
     <Compile Include="ViewModels\Earley\SymbolViewModel.cs" />
+    <Compile Include="ViewModels\Earley\TokenViewModel.cs" />
     <Compile Include="ViewModels\Grammar\GrammarViewModel.cs" />
-    <Compile Include="ViewModels\Parsing\ParseEngineViewModel.cs" />
-    <Compile Include="ViewModels\Lexing\ParseRunnerViewModel.cs" />
     <Compile Include="ViewModels\Msagl\MsaglDfaGraphViewModel.cs" />
     <Compile Include="ViewModels\Msagl\MsaglGraphViewModel.cs" />
     <Compile Include="Msagl\MsaglDfaGraph.cs" />
@@ -119,6 +118,10 @@
       <Project>{5c23805f-0ffc-4039-b853-e5acbe63a3c0}</Project>
       <Name>Pliant</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\rapidbnf\RapidPliant.RapidBnf\RapidPliant.RapidBnf.csproj">
+      <Project>{84C7DE2B-4664-42BF-AF84-3C0658D6AAF4}</Project>
+      <Name>RapidPliant.RapidBnf</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\rapidpliant\RapidPliant.csproj">
       <Project>{f93a8971-e693-4b33-ab85-5375840c128b}</Project>
       <Name>RapidPliant</Name>
@@ -134,7 +137,9 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="ViewModels\Parsing\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

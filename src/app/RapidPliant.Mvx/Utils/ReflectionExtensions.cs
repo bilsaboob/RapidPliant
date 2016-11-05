@@ -28,6 +28,32 @@ namespace RapidPliant.Mvx.Utils
             return propInfo;
         }
 
+        public static MemberInfoPath GetMemberInfoPath<TProperty>(this object source, Expression<Func<TProperty>> propertyExpression)
+        {
+            MemberExpression expr;
+            switch (propertyExpression.Body.NodeType)
+            {
+                case ExpressionType.Convert:
+                case ExpressionType.ConvertChecked:
+                    var ue = propertyExpression.Body as UnaryExpression;
+                    expr = ((ue != null) ? ue.Operand : null) as MemberExpression;
+                    break;
+                default:
+                    expr = propertyExpression.Body as MemberExpression;
+                break;
+            }
+
+            var memberInfos = new List<MemberInfo>();
+            while (expr != null)
+            {
+                memberInfos.Add(expr.Member);
+                expr = expr.Expression as MemberExpression;
+            }
+            memberInfos.Reverse();
+
+            return new MemberInfoPath(memberInfos);
+        }
+
         public static int GetTypeDistanceTo(this Type type, Type toType)
         {
             var minDistance = GetTypeDistanceToInternal(type, toType, 0);

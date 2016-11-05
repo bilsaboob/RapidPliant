@@ -1,0 +1,27 @@
+﻿<RapidView x:Class="RapidPliant.App.EarleyDebugger.Views.ParseRunnerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <RapidGrid Orientation="Vertical">
+        <ComboBox FontSize="16" FontFamily="Consolas"
+            ItemsSource="{BindTo Grammars}" 
+            SelectedItem="{BindTo Grammar}" 
+            DisplayMemberPath="Name" />
+
+        <RapidGrid Orientation="Horizontal">
+
+            <Button FontSize="16" FontFamily="Consolas" VerticalContentAlignment="Center" Width="90" Margin="0 0 25 0"
+                Click="{BindTo StartOrRestartParsing()}"
+                Content="{BindTo !IsStarted?Start:Restart}" />
+
+            <Label set.Width="*"></Label>
+
+            <Button FontSize="16" FontFamily="Consolas" VerticalContentAlignment="Center" Width="90" HorizontalAlignment="Right"
+                Click="{BindTo LexNext()}"
+                Content="Lex next" />
+        </RapidGrid>
+    </RapidGrid>
+</RapidView>

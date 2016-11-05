@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Pliant.Grammars;
 using Pliant.Json;
 using Pliant.RegularExpressions;
+using RapidPliant.RapidBnf.Grammar;
 
 namespace RapidPliant.App.Services
 {
@@ -37,15 +38,20 @@ namespace RapidPliant.App.Services
 
         public IGrammar GetGrammarByName(string grammarName)
         {
-            return new JsonGrammar();
+            if (grammarName == "RapidBnf grammar")
+            {
+                return new RapidBnfGrammar();
+            }
+
+            return null;
         }
 
         public IEnumerable<GrammarInfo> GetAvailableGrammars()
         {
             yield return new GrammarInfo() {
-                Name = "Json grammar",
-                Description = "Grammar for parsing json",
-                GrammarType = typeof(JsonGrammar)
+                Name = "RapidBnf grammar",
+                Description = "Grammar for parsing rapid bnf syntax",
+                GrammarType = typeof(RapidBnfGrammar)
             };
         }
     }

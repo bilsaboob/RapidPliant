@@ -20,16 +20,16 @@ namespace RapidPliant.Mvx
 
     public class RapidViewModel : IRapidViewModel
     {
-        private static readonly PropertyEntry _nullPropertyEntry = new NullPropertyEntry();
+        private static readonly MemberEntry _nullMemberEntry = new NullPropertyEntry();
 
         /// <summary>
         /// The properties contained within this view model
         /// </summary>
-        private Dictionary<string, PropertyEntry> _propertyEntries;
+        private Dictionary<string, MemberEntry> _memberEntries;
         
         public RapidViewModel()
         {
-            _propertyEntries = new Dictionary<string, PropertyEntry>();
+            _memberEntries = new Dictionary<string, MemberEntry>();
         }
 
         /// <summary>
@@ -147,7 +147,13 @@ namespace RapidPliant.Mvx
         /// <param name="value"></param>
         protected void set<TValue>(Expression<Func<TValue>> memberExpression, TValue value)
         {
-            var prop = GetOrCreateProperyEntry(memberExpression);
+            var prop = GetOrCreateMemberEntry(memberExpression);
+            prop.SetValueAndNotify(this, value);
+        }
+
+        internal void set(string memberName, object value)
+        {
+            var prop = GetOrCreateMemberEntry(memberName);
             prop.SetValueAndNotify(this, value);
         }
 
@@ -159,25 +165,65 @@ namespace RapidPliant.Mvx
         /// <returns></returns>
         protected TValue get<TValue>(Expression<Func<TValue>> memberExpression)
         {
-            var prop = GetOrCreateProperyEntry(memberExpression);
+            var prop = GetOrCreateMemberEntry(memberExpression);
             return prop.GetValue<TValue>();
+        }
+
+        internal object get(string memberName)
+        {
+            var prop = GetOrCreateMemberEntry(memberName);
+            return prop.GetValue<object>();
         }
         #endregion
 
         #region helpers
-        private PropertyEntry GetOrCreateProperyEntry<TValue>(Expression<Func<TValue>> memberExpression)
+        private MemberEntry GetOrCreateMemberEntry<TValue>(Expression<Func<TValue>> memberExpression)
         {
-            var propInfo = this.GetPropertyInfo(memberExpression);
-            if (propInfo == null)
-                return _nullPropertyEntry;
+            var memberPath = this.GetMemberInfoPath(memberExpression);
+            if (memberPath == null || memberPath.MemberInfos.Count == 0)
+                return _nullMemberEntry;
 
-            PropertyEntry propEntry;
-            if (!_propertyEntries.TryGetValue(propInfo.Name, out propEntry))
+            return GetOrCreateMemberEntry(memberPath);
+        }
+
+        private MemberEntry GetOrCreateMemberEntry(string memberName)
+        {
+            var member = this.GetType().GetMember(memberName).FirstOrDefault();
+            if (member == null)
+                return _nullMemberEntry;
+            
+            return GetOrCreateMemberEntry(new MemberInfoPath(new [] {member}));
+        }
+
+        private MemberEntry GetOrCreateMemberEntry(MemberInfoPath memberPath)
+        {
+            var fullPathName = memberPath.FullPathName;
+            MemberEntry memberEntry;
+            if (!_memberEntries.TryGetValue(fullPathName, out memberEntry))
             {
-                propEntry = new PropertyEntry(propInfo);
-                _propertyEntries[propInfo.Name] = propEntry;
+                memberEntry = CreateMemberEntry(memberPath);
+                _memberEntries[fullPathName] = memberEntry;
             }
-            return propEntry;
+            return memberEntry;
+        }
+
+        private MemberEntry CreateMemberEntry(MemberInfoPath memberPath)
+        {
+            
+            if (memberPath.MemberInfos.Count == 1)
+            {
+                //It's a simple member path entry
+                return new MemberEntry(memberPath);
+            }
+            else
+            {
+                //For sub entries we need to listen for any path changes!
+                var memberEntry = new SubMemberEntry(memberPath);
+                var pathChangeListener = new MemberPathChangeListener(this, memberPath, memberEntry);
+                memberEntry.PathChangeListener = pathChangeListener;
+                pathChangeListener.StartListening();
+                return memberEntry;
+            }
         }
 
         protected T GetOrCreate<T>()
@@ -185,17 +231,24 @@ namespace RapidPliant.Mvx
             return default(T);
         }
 
-        class PropertyEntry
+        class MemberEntry
         {
-            public PropertyEntry(PropertyInfo propInfo)
+            public MemberEntry(MemberInfoPath memberPath)
             {
-                PropertyInfo = propInfo;
+                if (memberPath != null)
+                {
+                    MemberPath = memberPath;
+                    Member = new QualifiedMember(MemberPath);
+                }
             }
 
-            public PropertyInfo PropertyInfo { get; set; }
+            public QualifiedMember Member { get; private set; }
+            public MemberInfoPath MemberPath { get; private set; }
 
-            public virtual string Name { get { return PropertyInfo.Name; } }
+            public virtual string Name { get { return Member.Path.FullPathName; } }
             public virtual object Value { get; protected set; }
+
+            public MemberPathChangeListener PathChangeListener { get; set; }
 
             public virtual void SetValueAndNotify(RapidViewModel source, object value)
             {
@@ -218,7 +271,219 @@ namespace RapidPliant.Mvx
             }
         }
 
-        class NullPropertyEntry : PropertyEntry
+        class SubMemberEntry : MemberEntry
+        {
+            public SubMemberEntry(MemberInfoPath memberPath)
+                : base(memberPath)
+            {
+            }
+
+            public override void SetValueAndNotify(RapidViewModel source, object value)
+            {
+                if (source == null)
+                    return;
+
+                Value = value;
+                
+                //Try setting the value at the end of the path
+                Member.SetValueForRoot(source, value);
+
+                //Notify about the first path name...
+                source.OnPropertyChanged(MemberPath.FullPathName);
+            }
+        }
+
+        class MemberPathChangeListener
+        {
+            private List<MemberChangeListener> MemberChangeListeners { get; set; }
+            private List<MemberInfo> RemainingMemberInfosToInitialize { get; set; }
+            private MemberEntry MemberEntry { get; set; }
+            private RapidViewModel Root { get; set; }
+
+            public MemberPathChangeListener(RapidViewModel root, MemberInfoPath memberPath, MemberEntry memberEntry)
+            {
+                Root = root;
+                MemberEntry = memberEntry;
+
+                MemberChangeListeners = new List<MemberChangeListener>();
+
+                RemainingMemberInfosToInitialize = memberPath.MemberInfos.ToList();
+
+                InitializeMemberInfos(root);
+            }
+
+            public void EnsureMemberInfosInitialized(MemberChangeListener fromMemberChangeListener, object target)
+            {
+                fromMemberChangeListener.PathChangeListenerPendingInitialize = null;
+
+                if (RemainingMemberInfosToInitialize.Count == 0)
+                    return;
+
+                InitializeMemberInfos(target);
+            }
+            
+            private void InitializeMemberInfos(object target)
+            {
+                var remainingMemberInfos = RemainingMemberInfosToInitialize.ToList();
+
+                MemberChangeListener prevListener = null;
+                while (remainingMemberInfos.Count > 0)
+                {
+                    var memberInfo = remainingMemberInfos[0];
+                    remainingMemberInfos.RemoveAt(0);
+
+                    var memberChangeListener = new MemberChangeListener(Root, target, memberInfo, MemberEntry);
+                    memberChangeListener.PathChangeListenerPendingInitialize = this;
+                    MemberChangeListeners.Add(memberChangeListener);
+
+                    if (prevListener != null)
+                        prevListener.NextMemberListener = memberChangeListener;
+
+                    //Get the new target
+                    target = QualifiedMember.GetValue(memberInfo, target);
+                    if (target == null)
+                        break;
+
+                    prevListener = memberChangeListener;
+                }
+
+                RemainingMemberInfosToInitialize = remainingMemberInfos.ToList();
+            }
+
+            public void StartListening()
+            {
+                //Start listening for changes... in reversed order
+                var listenersReversed = MemberChangeListeners.ToList();
+                listenersReversed.Reverse();
+                foreach (var memberChangeListener in listenersReversed)
+                {
+                    memberChangeListener.StartListening();
+                }
+            }
+
+            public void StopListening()
+            {
+                foreach (var memberChangeListener in MemberChangeListeners)
+                {
+                    memberChangeListener.StopListening();
+                }
+            }
+        }
+
+        class MemberChangeListener
+        {
+            public bool IsListening { get; private set; }
+            public RapidViewModel Root { get; set; }
+            public object Target { get; private set; }
+            public MemberInfo MemberInfo { get; private set; }
+            
+            public object MemberValue { get; private set; }
+            public object MemberEntryValue { get; private set; }
+
+            public MemberEntry MemberEntry { get; private set; }
+
+            public MemberChangeListener(RapidViewModel root, object target, MemberInfo memberInfo, MemberEntry memberEntry)
+            {
+                Root = root;
+                Target = target;
+                MemberInfo = memberInfo;
+                MemberEntry = memberEntry;
+
+                MemberValue = QualifiedMember.GetValue(MemberInfo, Target);
+                MemberEntryValue = memberEntry.Member.GetValueForRoot(Root);
+            }
+
+            public MemberChangeListener NextMemberListener { get; set; }
+            public MemberPathChangeListener PathChangeListenerPendingInitialize { get; set; }
+
+
+
+            public void ResetForTarget(object newTarget)
+            {
+                StopListening();
+                Target = newTarget;
+                StartListening();                
+            }
+
+            public void StartListening()
+            {
+                StartListening_(Target);
+            }
+
+            private void StartListening_(object target)
+            {
+                if(IsListening)
+                    return;
+
+                var notifyChange = target as INotifyPropertyChanged;
+                if (notifyChange != null)
+                {
+                    IsListening = true;
+                    notifyChange.PropertyChanged += MemberChanged;
+                }
+            }
+
+            public void StopListening()
+            {
+                StopListening_(Target);
+            }
+
+            private void StopListening_(object target)
+            {
+                var notifyChange = target as INotifyPropertyChanged;
+                if (notifyChange != null)
+                {
+                    notifyChange.PropertyChanged -= MemberChanged;
+                }
+
+                IsListening = false;
+            }
+
+            private void MemberChanged(object sender, PropertyChangedEventArgs e)
+            {
+                if(!string.Equals(e.PropertyName, MemberInfo.Name))
+                    return;
+
+                //The member changed
+                var memberValue = QualifiedMember.GetValue(MemberInfo, sender);
+                if (MemberValue == null && memberValue != null)
+                {
+                    if(PathChangeListenerPendingInitialize != null)
+                        PathChangeListenerPendingInitialize.EnsureMemberInfosInitialized(this, memberValue);
+                }
+
+                if (!ValueEquals(MemberValue, memberValue))
+                {
+                    MemberValue = memberValue;
+                    
+                    if (NextMemberListener != null)
+                        NextMemberListener.ResetForTarget(memberValue);
+                }
+            }
+
+            private bool ValueEquals(object v1, object v2)
+            {
+                if (v1 == null && v2 == null)
+                    return true;
+
+                if (ReferenceEquals(v1, v2))
+                    return true;
+
+                if (v1 != null)
+                {
+                    return v1.Equals(v2);
+                }
+
+                if (v2 != null)
+                {
+                    return v2.Equals(v1);
+                }
+
+                return false;
+            }
+        }
+
+        class NullPropertyEntry : MemberEntry
         {
             public NullPropertyEntry() : base(null)
             {

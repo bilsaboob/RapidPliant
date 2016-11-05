@@ -58,7 +58,7 @@ namespace RapidPliant.Mvx.Binding
 
             //Override with custon source and handling
             RapidBinding.Converter = this;
-            RapidBinding.Path = new PropertyPath(FakeValuePath);
+            RapidBinding.Path = new System.Windows.PropertyPath(FakeValuePath);
             RapidBinding.Source = this;
         }
 

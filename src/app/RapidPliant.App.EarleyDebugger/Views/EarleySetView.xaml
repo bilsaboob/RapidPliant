@@ -6,6 +6,19 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <RapidGrid set.Width="*" Orientation="Vertical">
+        <GroupBox Header="Pulsed token">
+            <RapidGrid Orientation="Vertical">
+                <RapidGrid Orientation="Horizontal">
+                    <Label>Spelling:</Label>
+                    <TextBlock Text="{BindTo PulsedToken.Spelling}"></TextBlock>
+                </RapidGrid>
+                <RapidGrid Orientation="Horizontal">
+                    <Label>Token type:</Label>
+                    <TextBlock Text="{BindTo PulsedToken.TokenTypeLabel}"></TextBlock>
+                </RapidGrid>
+            </RapidGrid>
+        </GroupBox>
+
         <GroupBox Header="Scans" set.Width="*">
             <RapidGrid Items="{BindTo Scans}" Orientation="Vertical">
                 <TextBlock Text="{BindTo DisplayLabel}"></TextBlock>
@@ -13,19 +26,19 @@
         </GroupBox>
 
         <GroupBox Header="Predictions" set.Width="*">
-            <RapidGrid Items="{BindTo Scans}" Orientation="Vertical">
+            <RapidGrid Items="{BindTo Predictions}" Orientation="Vertical">
                 <TextBlock Text="{BindTo DisplayLabel}"></TextBlock>
             </RapidGrid>
         </GroupBox>
 
         <GroupBox Header="Completions" set.Width="*">
-            <RapidGrid Items="{BindTo Scans}" Orientation="Vertical">
+            <RapidGrid Items="{BindTo Completions}" Orientation="Vertical">
                 <TextBlock Text="{BindTo DisplayLabel}"></TextBlock>
             </RapidGrid>
         </GroupBox>
 
         <GroupBox Header="Transitions" set.Width="*">
-            <RapidGrid Items="{BindTo Scans}" Orientation="Vertical">
+            <RapidGrid Items="{BindTo Transitions}" Orientation="Vertical">
                 <TextBlock Text="{BindTo DisplayLabel}"></TextBlock>
             </RapidGrid>
         </GroupBox>

@@ -34,16 +34,22 @@ namespace RapidPliant.App.ViewModels.Earley
             Completions = new ObservableCollection<EarleyStateViewModel>(EarleySet.Completions.Select(state => new EarleyStateViewModel().LoadFromState(state)));
             Transitions = new ObservableCollection<EarleyStateViewModel>(EarleySet.Transitions.Select(state => new EarleyStateViewModel().LoadFromState(state)));
 
+            //Init with no input token at all
+            PulsedToken = null;
+
             return this;
         }
 
         public int Location { get { return get(() => Location); } set { set(() => Location, value); } }
 
+        public TokenViewModel PulsedToken { get { return get(() => PulsedToken); } set { set(() => PulsedToken, value); } }
+        public bool PulsedTokenSuccess { get { return get(() => PulsedTokenSuccess); } set { set(() => PulsedTokenSuccess, value); } }
+
         public ObservableCollection<EarleyStateViewModel> Predictions { get { return get(() => Predictions); } set { set(() => Predictions, value); } }
         public ObservableCollection<EarleyStateViewModel> Scans { get { return get(() => Scans); } set { set(() => Scans, value); } }
         public ObservableCollection<EarleyStateViewModel> Completions { get { return get(() => Completions); } set { set(() => Completions, value); } }
         public ObservableCollection<EarleyStateViewModel> Transitions { get { return get(() => Transitions); } set { set(() => Transitions, value); } }
-
+        
         public void AddScan(EarleyStateViewModel state)
         {
             Scans.Add(state);

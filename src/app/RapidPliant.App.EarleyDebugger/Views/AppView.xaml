@@ -5,45 +5,26 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:views="clr-namespace:RapidPliant.App.EarleyDebugger.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="600">
+             d:DesignHeight="300" d:DesignWidth="800">
     <RapidGrid Orientation="Horizontal">
-        <RapidGrid Orientation="Vertical" set.Width="Auto" set.Height="*">
-
-            <ComboBox FontSize="16" FontFamily="Consolas"
-            ItemsSource="{BindTo Grammars}" 
-            SelectedItem="{BindTo Grammar}" 
-            DisplayMemberPath="Name" />
-
-            <RapidGrid Orientation="Horizontal">
-                <Button FontSize="16" FontFamily="Consolas" VerticalContentAlignment="Center" Width="90" Margin="0 0 25 0"
-                Click="{BindTo StartOrRestartParsing()}"
-                Content="{BindTo !IsStarted?Start:Restart}" />
-
-                <Button FontSize="16" FontFamily="Consolas" VerticalContentAlignment="Center" Width="90" Margin="0 0 5 0" HorizontalAlignment="Right"
-                Click="{BindTo ScanNext()}"
-                Content="Scan next" />
-
-                <Button FontSize="16" FontFamily="Consolas" VerticalContentAlignment="Center" Width="90" HorizontalAlignment="Right"
-                Click="{BindTo LexNext()}"
-                Content="Lex next" />
-
-            </RapidGrid>
-
+        <GroupBox Header="Input" set.Height="*">
             <AvalonTextEditor set.Height="*" MinWidth="300px" MaxWidth="300px" 
                           ShowLineNumbers="True"
                           Text="{BindTo ParseInput}">
             </AvalonTextEditor>
-        </RapidGrid>
+        </GroupBox>
 
-        <RapidGrid Orientation="Vertical" set.Width="*">
-            <RapidScrollViewer set.Width="*" set.Height="Auto" HorizontalAlignment="Stretch" MinHeight="100"
+        <GroupBox Header="Parse" set.Height="*">
+            <views:ParseRunnerView></views:ParseRunnerView>
+        </GroupBox>
+
+        <RapidScrollViewer set.Width="*" set.Height="Auto" HorizontalAlignment="Stretch" MinHeight="100"
                 HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Disabled" CanContentScroll="True">
-                <RapidGrid Orientation="Horizontal" set.Width="*" set.Height="*" MinHeight="100"
+            <RapidGrid Orientation="Horizontal" set.Width="*" set.Height="*" MinHeight="100"
                            Items="{BindTo root.EarleyChart.EarleySets}">
-                    <views:EarleySetView></views:EarleySetView>
-                </RapidGrid>
-            </RapidScrollViewer>
-        </RapidGrid>
-        
+                <views:EarleySetView></views:EarleySetView>
+            </RapidGrid>
+        </RapidScrollViewer>
+
     </RapidGrid>
 </RapidView>

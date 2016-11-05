@@ -42,6 +42,8 @@
   <ItemGroup>
     <Compile Include="Automata\DfaExtensions.cs" />
     <Compile Include="Automata\NfaExtensions.cs" />
+    <Compile Include="Grammars\RapidGrammar.cs" />
+    <Compile Include="Grammars\RuleDef.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
