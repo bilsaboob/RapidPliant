@@ -7,12 +7,15 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 using RapidPliant.Mvx.Utils;
 
 namespace RapidPliant.Mvx
 {
     public interface IRapidViewModel : INotifyPropertyChanged
     {
+        void Invoke(Action action);
     }
 
     public class RapidViewModel : IRapidViewModel
@@ -23,7 +26,7 @@ namespace RapidPliant.Mvx
         /// The properties contained within this view model
         /// </summary>
         private Dictionary<string, PropertyEntry> _propertyEntries;
-
+        
         public RapidViewModel()
         {
             _propertyEntries = new Dictionary<string, PropertyEntry>();
@@ -107,6 +110,23 @@ namespace RapidPliant.Mvx
         {
             View = view;
             HasView = view != null;
+        }
+
+        public void Invoke(Action action)
+        {
+            //Dispatch using the dispatcher of the view
+            Dispatcher dispatcher = null;
+            var uiElem = View as UIElement;
+            if (uiElem != null && uiElem.Dispatcher != null)
+            {
+                dispatcher = uiElem.Dispatcher;
+            }
+            else
+            {
+                dispatcher = Dispatcher.CurrentDispatcher;
+            }
+
+            dispatcher.Invoke(action);
         }
 
         #region INotifyPropertyChange

@@ -89,6 +89,23 @@ namespace RapidPliant.Mvx.Binding
                     UpdateTragetViewModel(_initializeRootElement.DataContext);
                     _initializeRootElement.DataContextChanged += OnRootElementDataContextChanged;
                 }
+                else
+                {
+                    _initializedTargetElement.Loaded += InitializedTargetElementOnInitialized;
+                }
+            }
+        }
+
+        private void InitializedTargetElementOnInitialized(object sender, EventArgs eventArgs)
+        {
+            if (_initializeRootElement == null)
+            {
+                _initializeRootElement = _initializedTargetElement.FindParent<RapidView>();
+                if (_initializeRootElement != null)
+                {
+                    UpdateTragetViewModel(_initializeRootElement.DataContext);
+                    _initializeRootElement.DataContextChanged += OnRootElementDataContextChanged;
+                }
             }
         }
 
@@ -134,9 +151,11 @@ namespace RapidPliant.Mvx.Binding
         {
             EnsureInitialized();
 
-            if (ActualPath.Path.StartsWith("!"))
+            if (ActualPath.Path.StartsWith("Test"))
             {
-                
+            }
+            if (ActualPath.Path.StartsWith("Scans"))
+            {
             }
             var pathIter = new PathIterator(ActualPath.Path);
             var targetViewModel = GetTargetViewModel(pathIter);

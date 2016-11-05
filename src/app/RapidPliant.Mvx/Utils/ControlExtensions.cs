@@ -85,6 +85,41 @@ namespace RapidPliant.Mvx.Utils
             }
         }
 
+        public static List<DependencyObject> GetImmediateVisualChildren(this DependencyObject parent)
+        {
+            var children = new List<DependencyObject>();
+            if (parent == null)
+                return children;
+
+            var parentVisual = parent as Visual;
+            if (parentVisual != null)
+            {
+                var childCount = VisualTreeHelper.GetChildrenCount(parent);
+                for (var i = 0; i < childCount; ++i)
+                {
+                    var child = VisualTreeHelper.GetChild(parent, i);
+                    if (child == null)
+                        continue;
+
+                    if (!children.Contains(child))
+                        children.Add(child);
+                }
+            }
+
+            return children;
+        }
+
+        public static IEnumerable<T> FindChildren<T>(this DependencyObject parent)
+            where T : class
+        {
+            foreach (var child in parent.GetAllChildren())
+            {
+                var other = child as T;
+                if (other != null)
+                    yield return other;
+            }
+        }
+
         public static List<DependencyObject> GetAllChildren(this DependencyObject parent)
         {
             var children = new List<DependencyObject>();
@@ -157,6 +192,18 @@ namespace RapidPliant.Mvx.Utils
             }
 
             return FindParentWithDataContext(parentObject);
+        }
+
+        public static T ThisOrFindParent<T>(this DependencyObject child) where T : DependencyObject
+        {
+            if (child == null)
+                return default(T);
+
+            var typedChild = child as T;
+            if (typedChild != null)
+                return typedChild;
+
+            return child.FindParent<T>();
         }
 
         public static T FindParent<T>(this DependencyObject child) where T : DependencyObject

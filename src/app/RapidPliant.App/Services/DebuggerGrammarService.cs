@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Pliant.Grammars;
+using Pliant.Json;
 using Pliant.RegularExpressions;
 
 namespace RapidPliant.App.Services
@@ -36,15 +37,15 @@ namespace RapidPliant.App.Services
 
         public IGrammar GetGrammarByName(string grammarName)
         {
-            return new RegexGrammar();
+            return new JsonGrammar();
         }
 
         public IEnumerable<GrammarInfo> GetAvailableGrammars()
         {
             yield return new GrammarInfo() {
-                Name = "Regex grammar",
-                Description = "Grammar for parsing regular expressions",
-                GrammarType = typeof(RegexGrammar)
+                Name = "Json grammar",
+                Description = "Grammar for parsing json",
+                GrammarType = typeof(JsonGrammar)
             };
         }
     }

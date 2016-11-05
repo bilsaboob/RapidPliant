@@ -58,6 +58,7 @@
     <Compile Include="Binding\RapidBindingSerializationProperty.cs" />
     <Compile Include="Controls\Extensions\set.cs" />
     <Compile Include="Controls\RapidGrid.cs" />
+    <Compile Include="Controls\RapidScrollViewer.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
@@ -79,6 +80,7 @@
     <Compile Include="RapidViewModel.cs" />
     <Compile Include="Utils\ControlExtensions.cs" />
     <Compile Include="Utils\ControlTemplateFactory.cs" />
+    <Compile Include="Utils\EnumerableExtensions.cs" />
     <Compile Include="Utils\ReflectionExtensions.cs" />
     <Compile Include="RapidView.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

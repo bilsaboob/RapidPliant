@@ -74,6 +74,11 @@
     <Compile Include="RapidPliantApplication.cs" />
     <Compile Include="Services\DebuggerGrammarService.cs" />
     <Compile Include="Utils\ReusableNamesCollection.cs" />
+    <Compile Include="ViewModels\Earley\EarleyChartViewModel.cs" />
+    <Compile Include="ViewModels\Earley\EarleySetViewModel.cs" />
+    <Compile Include="ViewModels\Earley\EarleyStateViewModel.cs" />
+    <Compile Include="ViewModels\Earley\ProductionViewModel.cs" />
+    <Compile Include="ViewModels\Earley\SymbolViewModel.cs" />
     <Compile Include="ViewModels\Grammar\GrammarViewModel.cs" />
     <Compile Include="ViewModels\Parsing\ParseEngineViewModel.cs" />
     <Compile Include="ViewModels\Lexing\ParseRunnerViewModel.cs" />
@@ -105,6 +110,10 @@
     <ProjectReference Include="..\..\..\external_libs\Msagl\Msagl\Msagl.csproj">
       <Project>{415d3e3f-7105-46c1-84d2-7ecb34213d92}</Project>
       <Name>Msagl</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\repos\pliant\libraries\Pliant.Json\Pliant.Json.csproj">
+      <Project>{DDC33E1B-CA04-4C28-8F5B-A5F8F55DBA10}</Project>
+      <Name>Pliant.Json</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\repos\pliant\libraries\Pliant\Pliant.csproj">
       <Project>{5c23805f-0ffc-4039-b853-e5acbe63a3c0}</Project>

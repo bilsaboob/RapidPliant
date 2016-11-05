@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
+using System.Xml.Serialization;
 using RapidPliant.Mvx.Controls.Extensions;
 using RapidPliant.Mvx.Utils;
 
@@ -17,6 +18,13 @@ namespace RapidPliant.Mvx.Controls
     [ContentProperty("Contents")]
     public partial class RapidGrid : UserControl
     {
+        public static readonly DependencyProperty SerializedContentProperty = DependencyProperty.Register(
+            "SerializedContent",
+            typeof(RapidGridSerializedContentsCollection),
+            typeof(RapidGrid),
+            new FrameworkPropertyMetadata(null, OnSerializedContentChanged)
+        );
+        
         public static readonly DependencyProperty OrientationProperty = DependencyProperty.Register(
             "Orientation",
             typeof(Orientation),
@@ -30,6 +38,15 @@ namespace RapidPliant.Mvx.Controls
             typeof(RapidGrid),
             new FrameworkPropertyMetadata(null, OnItemsChanged)
         );
+
+        private static void OnSerializedContentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var grid = d as RapidGrid;
+            if (grid == null)
+                return;
+
+            grid.SerializedContent = e.NewValue as RapidGridSerializedContentsCollection;
+        }
 
         private static void OnItemsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -55,9 +72,13 @@ namespace RapidPliant.Mvx.Controls
             grid.InvalidateMeasure();
         }
 
+        [XmlIgnore]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public DataTemplate ItemsDataTemplate { get; set; }
 
         private ItemsControl _itemsControl;
+        [XmlIgnore]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         private ItemsControl ItemsControl
         {
             get
@@ -65,9 +86,18 @@ namespace RapidPliant.Mvx.Controls
                 if (_itemsControl == null)
                 {
                     _itemsControl = new ItemsControl();
+                    _itemsControl.ItemsPanel = CreateItemsControlContainerTemplate();
                 }
                 return _itemsControl;
             }
+        }
+
+        private ItemsPanelTemplate CreateItemsControlContainerTemplate()
+        {
+            var factory = new FrameworkElementFactory(typeof(StackPanel));
+            factory.SetValue(StackPanel.IsItemsHostProperty, true);
+            factory.SetValue(StackPanel.OrientationProperty, Orientation);
+            return new ItemsPanelTemplate(factory);
         }
 
         private Grid ContentGrid { get; set; }
@@ -90,10 +120,11 @@ namespace RapidPliant.Mvx.Controls
             ContentGrid.HorizontalAlignment = HorizontalAlignment.Stretch;
             ContentGrid.VerticalAlignment = VerticalAlignment.Stretch;
             Content = ContentGrid;
+            EnsureSerializedContent();
         }
-
+        
         [Bindable(true)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public IEnumerable Items
         {
             get
@@ -117,12 +148,46 @@ namespace RapidPliant.Mvx.Controls
                 ItemsControl.ItemTemplate = ItemsDataTemplate;
                 ItemsControl.ItemsSource = value;
 
-                //Set the content to match the items control instead of the ContentGrid
+                //Set the content to match the items control instead of the ContentGrid, but make sure to save the initial content for serialization purposes... so it looks the same when serialized!
+                EnsureSerializedContent();
                 Content = ItemsControl;
             }
         }
-
+        
+        [XmlIgnore]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public RapidGridContentsCollection Contents { get; private set; }
+
+        private RapidGridSerializedContentsCollection EnsureSerializedContent()
+        {
+            SerializedContent = new RapidGridSerializedContentsCollection(Contents);
+            return SerializedContent;
+        }
+
+        public RapidGridSerializedContentsCollection SerializedContent
+        {
+            get
+            {
+                return GetValue(SerializedContentProperty) as RapidGridSerializedContentsCollection;
+            }
+            set
+            {
+                SetValue(SerializedContentProperty, value);
+                LoadContents(value);
+                //Content = value;
+            }
+        }
+
+        private void LoadContents(RapidGridSerializedContentsCollection contents)
+        {
+            if (contents != null)
+            {
+                foreach (var content in contents)
+                {
+                    Contents.Add(content);
+                }
+            }
+        }
 
         public Orientation Orientation
         {
@@ -134,6 +199,14 @@ namespace RapidPliant.Mvx.Controls
             {
                 SetValue(OrientationProperty, value);
             }
+        }
+
+        protected override bool ShouldSerializeProperty(DependencyProperty dp)
+        {
+            if(dp == ContentProperty)
+                return false;
+
+            return base.ShouldSerializeProperty(dp);
         }
 
         private void UpdateOrientation()
@@ -227,8 +300,14 @@ namespace RapidPliant.Mvx.Controls
 
         public void ChildAdded(int index, UIElement child)
         {
-            ContentGrid.Children.Insert(index, child);
-            UpdateOrientation();
+            if (!ContentGrid.Children.Contains(child))
+            {
+                if (!SerializedContent.Contains(child))
+                    SerializedContent.Insert(index, child);
+
+                ContentGrid.Children.Insert(index, child);
+                UpdateOrientation();
+            }
         }
 
         public void ChildSet(UIElement prevItem, UIElement item)
@@ -244,8 +323,13 @@ namespace RapidPliant.Mvx.Controls
 
         public void ChildRemoved(UIElement child)
         {
-            ContentGrid.Children.Remove(child);
-            UpdateOrientation();
+            if (ContentGrid.Children.Contains(child))
+            {
+                ContentGrid.Children.Remove(child);
+                if(SerializedContent.Contains(child))
+                    SerializedContent.Remove(child);
+                UpdateOrientation();
+            }
         }
 
         private ChildItemEntry AddChild(UIElement child)
@@ -339,10 +423,28 @@ namespace RapidPliant.Mvx.Controls
         }
     }
 
+    public class RapidGridSerializedContentsCollection : Collection<UIElement>
+    {
+        public RapidGridSerializedContentsCollection()
+        {
+        }
+
+        public RapidGridSerializedContentsCollection(RapidGridContentsCollection contents)
+        {
+            if (contents != null)
+            {
+                foreach (var content in contents)
+                {
+                    Add(content);
+                }
+            }
+        }
+    }
+
     public class RapidGridContentsCollection : Collection<UIElement>
     {
         private RapidGrid _grid;
-
+        
         public RapidGridContentsCollection(RapidGrid grid)
         {
             _grid = grid;

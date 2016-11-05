@@ -28,7 +28,12 @@ namespace RapidPliant.Mvx.Binding
                     throw new Exception("Invalid binding expression!");
 
                 var converter = (bindingExpression.ParentBinding.Source as RapidBindingPropertyValueProviderConverter);
-                return converter.RapidBinding.CloneForBindingExpressionMarkupSerializationObject();
+                if (converter != null)
+                {
+                    return converter.RapidBinding.CloneForBindingExpressionMarkupSerializationObject();
+                }
+
+                return bindingExpression.ParentBinding;
             }
 
             return base.ConvertTo(context, culture, value, destinationType);

@@ -22,14 +22,32 @@ namespace RapidPliant.Mvx
         /// * Creates instances of the view model properties of view models that are resolved
         /// </summary>
         /// <param name="viewControl"></param>
-        public static void LoadView(Control viewControl)
+        public static void LoadView(Control viewControl, RapidViewModel viewModel = null, RapidMvxContext parentContext = null)
         {
             var view = viewControl as IRapidView;
             if (view == null)
                 return;
 
+            if (parentContext == null)
+            {
+                var parentView = viewControl.FindParent<RapidView>();
+                if (parentView != null)
+                {
+                    parentContext = parentView.Context;
+                }
+            }
+
             //Build the mvx contexts!
-            var rootContext = BuildMvxContextRecursive(viewControl, null);
+            BuildMvxContextRecursive(viewControl, parentContext);
+
+            //If we received a parent context, don't initialize it again...
+            var rootContext = view.Context;
+
+            //Set the viewmodel of the root if not set
+            if (viewModel != null)
+            {
+                rootContext.ViewModel = viewModel;
+            }
 
             ResolveViewModelsRecursive(rootContext);
 

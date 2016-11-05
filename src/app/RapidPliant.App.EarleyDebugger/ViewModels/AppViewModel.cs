@@ -8,6 +8,7 @@ using Pliant.Grammars;
 using Pliant.RegularExpressions;
 using Pliant.Runtime;
 using RapidPliant.App.Services;
+using RapidPliant.App.ViewModels.Earley;
 using RapidPliant.App.ViewModels.Grammar;
 using RapidPliant.Mvx;
 
@@ -47,11 +48,12 @@ namespace RapidPliant.App.EarleyDebugger.ViewModels
             }
         }
         public ParseEngineViewModel ParseEngine { get { return get(() => ParseEngine); } set { set(() => ParseEngine, value); } }
-        public ParseRunnerViewModel ParseRunner { get { return get(() => ParseRunner); } set { set(() => ParseRunner, value); } }
+        public DebuggerParseRunnerViewModel ParseRunner { get { return get(() => ParseRunner); } set { set(() => ParseRunner, value); } }
 
         public ObservableCollection<GrammarViewModel> Grammars { get { return get(() => Grammars); } set { set(() => Grammars, value); } }
 
         public bool IsStarted { get { return get(() => IsStarted); } set { set(() => IsStarted, value); } }
+        public EarleyChartViewModel EarleyChart { get { return get(() => EarleyChart); } set { set(() => EarleyChart, value); } }
 
         public string ParseInput
         {
@@ -102,19 +104,25 @@ namespace RapidPliant.App.EarleyDebugger.ViewModels
 
             //Initialize the parse engine and runner
             _parseEngine = new ParseEngine(_grammar, new ParseEngineOptions(optimizeRightRecursion: true));
+            ParseEngine.EarleyChart = EarleyChart;
             ParseEngine.LoadParseEngine(_parseEngine);
 
             _parseRunner = new ParseRunner(_parseEngine, ParseInput);
-            ParseRunner.LoadParseRunner(_parseRunner);
+            ParseRunner.EarleyChart = EarleyChart;
             ParseRunner.ParseEngine = ParseEngine;
+            ParseRunner.LoadParseRunner(_parseRunner);
+
+            EarleyChart.LoadFromChart(_parseEngine.Chart);
         }
 
         public void ScanNext()
         {
+            ParseRunner.ScanNext();
         }
 
         public void LexNext()
         {
+            ParseRunner.LexNext();
         }
     }
 }
