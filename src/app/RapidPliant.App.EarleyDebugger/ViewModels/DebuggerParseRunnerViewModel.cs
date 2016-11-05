@@ -15,10 +15,5 @@ namespace RapidPliant.App.EarleyDebugger.ViewModels
         public DebuggerParseRunnerViewModel()
         {
         }
-
-        protected override ParseContext CreateParseContext()
-        {
-            return new DebuggerParseContext(EarleyChart);
-        }
     }
 }

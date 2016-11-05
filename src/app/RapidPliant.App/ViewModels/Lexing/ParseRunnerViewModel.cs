@@ -28,11 +28,6 @@ namespace RapidPliant.App.ViewModels.Grammar
         {
         }
 
-        protected virtual ParseContext CreateParseContext()
-        {
-            return new ParseContext();
-        }
-
         public void LexNext()
         {
             if (_parseRunner.EndOfStream())
@@ -41,10 +36,8 @@ namespace RapidPliant.App.ViewModels.Grammar
                 CanLexNext = false;
                 return;
             }
-
-            var parseContext = CreateParseContext();
-
-            var readResult = _parseRunner.Read(parseContext);
+            
+            var readResult = _parseRunner.Read();
             
             if (!readResult)
             {

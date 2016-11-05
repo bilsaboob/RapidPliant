@@ -56,7 +56,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EarleyDebuggerApplication.cs" />
-    <Compile Include="Parsing\DebuggerParseContext.cs" />
     <Compile Include="Parsing\RunParseTask.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
