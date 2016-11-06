@@ -1,0 +1,18 @@
+﻿<RapidView x:Class="RapidPliant.App.EarleyDebugger.Views.EarleyChartView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:views="clr-namespace:RapidPliant.App.EarleyDebugger.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <RapidGrid Orientation="Horizontal">
+        <RapidScrollViewer set.Width="*" set.Height="Auto" HorizontalAlignment="Stretch" MinHeight="100" ReScrollToRightEnd="{BindTo ActiveEarleySetChanged}"
+                HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Disabled" CanContentScroll="True">
+            <RapidGrid Orientation="Horizontal" set.Width="*" set.Height="*" MinHeight="100"
+                           Items="{BindTo EarleySets}">
+                <views:EarleySetView></views:EarleySetView>
+            </RapidGrid>
+        </RapidScrollViewer>
+    </RapidGrid>
+</RapidView>

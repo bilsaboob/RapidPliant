@@ -25,7 +25,7 @@ namespace RapidPliant.App.ViewModels.Earley
 
             EarleySets = new ObservableCollection<EarleySetViewModel>(EarleyChart.EarleySets.Select(set=>new EarleySetViewModel().LoadFromEarleySet(set)));
 
-            //RefreshActiveSet();
+            RefreshActiveSet();
 
             return this;
         }
@@ -33,6 +33,8 @@ namespace RapidPliant.App.ViewModels.Earley
         public ObservableCollection<EarleySetViewModel> EarleySets { get { return get(() => EarleySets); } set { set(() => EarleySets, value); } }
 
         public EarleySetViewModel ActiveEarleySet { get { return get(() => ActiveEarleySet); } set { set(() => ActiveEarleySet, value); } }
+
+        public bool ActiveEarleySetChanged { get { return get(() => ActiveEarleySetChanged); } set { set(() => ActiveEarleySetChanged, value); } }
 
         public EarleySetViewModel GetEarleySet(int location)
         {
@@ -62,13 +64,15 @@ namespace RapidPliant.App.ViewModels.Earley
                     var earleySetVm = new EarleySetViewModel().LoadFromEarleySet(earleySet);
                     EarleySets.Add(earleySetVm);
 
-                    //RefreshActiveSet();
+                    RefreshActiveSet();
                 }
             }
         }
 
         private void RefreshActiveSet()
         {
+            ActiveEarleySetChanged = false;
+
             var newActive = EarleySets.LastOrDefault();
             if(newActive == null)
                 return;
@@ -80,8 +84,11 @@ namespace RapidPliant.App.ViewModels.Earley
 
                 ActiveEarleySet = newActive;
 
-                if(ActiveEarleySet != null)
+                if (ActiveEarleySet != null)
+                {
                     ActiveEarleySet.IsCurrent = true;
+                    ActiveEarleySetChanged = true;
+                }
             }
         }
 

@@ -49,7 +49,14 @@ namespace RapidPliant.App.ViewModels.Earley
         public string LocationLabel { get { return get(() => LocationLabel); } set { set(() => LocationLabel, value); } }
         public int Location { get { return get(() => Location); } set { set(() => Location, value); } }
 
-        public bool IsCurrent { get { return get(() => IsCurrent); } set { set(() => IsCurrent, value); } }
+        public bool IsCurrent
+        {
+            get { return get(() => IsCurrent); }
+            set
+            {
+                set(() => IsCurrent, value);
+            }
+        }
 
         public TokenViewModel PulsedToken { get { return get(() => PulsedToken); } set { set(() => PulsedToken, value); } }
         public bool PulsedTokenSuccess { get { return get(() => PulsedTokenSuccess); } set { set(() => PulsedTokenSuccess, value); } }

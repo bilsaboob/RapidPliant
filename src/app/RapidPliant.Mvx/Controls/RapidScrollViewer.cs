@@ -11,20 +11,20 @@ namespace RapidPliant.Mvx.Controls
 {
     public class RapidScrollViewer : ScrollViewer
     {
-        public static readonly DependencyProperty AutoScrollToRightEndProperty = DependencyProperty.RegisterAttached(
-            "AutoScrollToRightEnd",
+        public static readonly DependencyProperty ReScrollToRightEndProperty = DependencyProperty.RegisterAttached(
+            "ReScrollToRightEnd",
             typeof(bool),
             typeof(RapidScrollViewer),
-            new PropertyMetadata(false, AutoScrollToEndChanged)
+            new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, ReScrollToEndChanged)
         );
 
-        private static void AutoScrollToEndChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void ReScrollToEndChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var scrollViewer = d as RapidScrollViewer;
             if(scrollViewer == null)
                 return;
 
-            scrollViewer.AutoScrollToRightEnd = (bool) e.NewValue;
+            scrollViewer.ReScrollToRightEnd = (bool) e.NewValue;
         }
 
         public RapidScrollViewer()
@@ -34,40 +34,18 @@ namespace RapidPliant.Mvx.Controls
 
         private HashSet<FrameworkElement> InitializedChildren { get; set; }
 
-        public bool AutoScrollToRightEnd
+        public bool ReScrollToRightEnd
         {
-            get { return (bool)GetValue(AutoScrollToRightEndProperty); }
+            get { return (bool)GetValue(ReScrollToRightEndProperty); }
             set
             {
-                SetValue(AutoScrollToRightEndProperty, value);
+                SetValue(ReScrollToRightEndProperty, value);
 
                 if (value)
                 {
-                    EnableScrollToRightEnd();
-                }
-                else
-                {
-                    DisableScrollToRightEnd();
+                    ScrollToRightEnd();
                 }
             }
-        }
-
-        private void DisableScrollToRightEnd()
-        {
-            ScrollChanged -= OnScrollChanged;
-        }
-
-        private void EnableScrollToRightEnd()
-        {
-            ScrollChanged += OnScrollChanged;
-            ScrollToRightEnd();
-        }
-
-        private void OnScrollChanged(object sender, ScrollChangedEventArgs scrollChangedEventArgs)
-        {
-            var scrollViewer = (ScrollViewer)sender;
-            if (scrollViewer.HorizontalOffset == scrollViewer.ScrollableWidth)
-                ScrollToRightEnd();
         }
 
         protected override void OnVisualChildrenChanged(DependencyObject visualAdded, DependencyObject visualRemoved)

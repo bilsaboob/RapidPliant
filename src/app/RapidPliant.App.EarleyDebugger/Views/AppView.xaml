@@ -18,13 +18,9 @@
             <views:ParseRunnerView></views:ParseRunnerView>
         </GroupBox>
 
-        <RapidScrollViewer set.Width="*" set.Height="Auto" HorizontalAlignment="Stretch" MinHeight="100" AutoScrollToRightEnd="{BindTo root.ParseRunner.ParseEngine.HasPulsedForPulsePass}"
-                HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Disabled" CanContentScroll="True">
-            <RapidGrid Orientation="Horizontal" set.Width="*" set.Height="*" MinHeight="100"
-                           Items="{BindTo root.EarleyChart.EarleySets}">
-                <views:EarleySetView></views:EarleySetView>
-            </RapidGrid>
-        </RapidScrollViewer>
+        <GroupBox Header="Chart" set.Width="*" set.Height="*">
+            <views:EarleyChartView></views:EarleyChartView>
+        </GroupBox>
 
     </RapidGrid>
 </RapidView>

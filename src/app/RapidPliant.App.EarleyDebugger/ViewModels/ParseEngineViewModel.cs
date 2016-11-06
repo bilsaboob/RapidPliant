@@ -18,7 +18,7 @@ namespace RapidPliant.App.EarleyDebugger.ViewModels
         public ParseEngineViewModel()
         {
         }
-        
+
         public EarleyChartViewModel EarleyChart { get { return get(() => EarleyChart); } set { set(() => EarleyChart, value); } }
 
         public virtual void LoadParseEngine(DebugParseEngine parseEngine)
@@ -30,7 +30,14 @@ namespace RapidPliant.App.EarleyDebugger.ViewModels
 
         public bool LastPulsedTokenSuccess { get { return get(() => LastPulsedTokenSuccess); } set { set(() => LastPulsedTokenSuccess, value); } }
 
-        public bool HasPulsedForPulsePass { get { return get(() => HasPulsedForPulsePass); } set { set(() => HasPulsedForPulsePass, value); } }
+        public bool HasPulsedForPulsePass
+        {
+            get { return get(() => HasPulsedForPulsePass); }
+            set
+            {
+                set(() => HasPulsedForPulsePass, value);
+            }
+        }
 
         public void StartNewPulsePass()
         {
@@ -40,7 +47,7 @@ namespace RapidPliant.App.EarleyDebugger.ViewModels
             LastPulsedToken = null;
             LastPulsedTokenSuccess = false;
         }
-        
+
         public void RefreshForPulsePass()
         {
             HasPulsedForPulsePass = ParseEngine.LastPulsedToken != null;

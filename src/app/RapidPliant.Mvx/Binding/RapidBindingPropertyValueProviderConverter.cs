@@ -86,7 +86,7 @@ namespace RapidPliant.Mvx.Binding
                 _initializeRootElement = _initializedTargetElement.FindParent<RapidView>();
                 if (_initializeRootElement != null)
                 {
-                    UpdateTragetViewModel(_initializeRootElement.DataContext);
+                    UpdateRootViewModel(_initializeRootElement.DataContext);
                     _initializeRootElement.DataContextChanged += OnRootElementDataContextChanged;
                 }
                 else
@@ -98,12 +98,14 @@ namespace RapidPliant.Mvx.Binding
 
         private void InitializedTargetElementOnInitialized(object sender, EventArgs eventArgs)
         {
+            UpdateTragetViewModel(_initializedTargetElement.DataContext);
+
             if (_initializeRootElement == null)
             {
                 _initializeRootElement = _initializedTargetElement.FindParent<RapidView>();
                 if (_initializeRootElement != null)
                 {
-                    UpdateTragetViewModel(_initializeRootElement.DataContext);
+                    UpdateRootViewModel(_initializeRootElement.DataContext);
                     _initializeRootElement.DataContextChanged += OnRootElementDataContextChanged;
                 }
             }
@@ -151,11 +153,10 @@ namespace RapidPliant.Mvx.Binding
         {
             EnsureInitialized();
             
-            if (ActualPath.Path.StartsWith("IsActive"))
-            {
-            }
+            
             var pathIter = new PathIterator(ActualPath.Path);
             var targetViewModel = GetTargetViewModel(pathIter);
+
             if (targetViewModel != null)
             {
                 value = GetPathValue(pathIter, targetViewModel);

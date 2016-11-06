@@ -77,6 +77,9 @@
     <Compile Include="ViewModels\ParseEngineViewModel.cs" />
     <Compile Include="ViewModels\IParserViewModel.cs" />
     <Compile Include="ViewModels\ParseRunnerViewModel.cs" />
+    <Compile Include="Views\EarleyChartView.xaml.cs">
+      <DependentUpon>EarleyChartView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ParseRunnerView.xaml.cs">
       <DependentUpon>ParseRunnerView.xaml</DependentUpon>
     </Compile>
@@ -128,6 +131,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\EarleyChartView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\ParseRunnerView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
