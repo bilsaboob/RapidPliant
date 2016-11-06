@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Msagl.Drawing;
+using Pliant.Charts;
 using Pliant.Forest;
 using Pliant.Tree;
 using RapidPliant.App.Msagl;
@@ -17,23 +18,69 @@ namespace RapidPliant.App.EarleyDebugger.Msagl
         {
         }
 
-        public Graph Graph
+        public Graph ParseForestGraph
         {
-            get { return get(() => Graph); }
-            set { set(() => Graph, value); }
+            get { return get(() => ParseForestGraph); }
+            set { set(() => ParseForestGraph, value); }
         }
 
-        public void LoadForParseForest(IInternalForestNode parseRoot)
+        public Graph ParseTreeGraph
+        {
+            get { return get(() => ParseTreeGraph); }
+            set { set(() => ParseTreeGraph, value); }
+        }
+
+        public void LoadParseTree(IInternalForestNode parseRoot)
         {
             if(parseRoot == null)
                 return;
 
             //Build and set the graph
-            var graph = BuildParseTreeGraph(parseRoot);
-            Graph = graph;
+            var graph = BuildParseTreeGraphForParseRoot(parseRoot);
+            ParseTreeGraph = graph;
         }
 
-        private Graph BuildParseTreeGraph(IInternalForestNode parseRoot)
+        public void LoadParseForest(IReadOnlyChart earleyChart)
+        {
+            if (earleyChart == null)
+                return;
+
+            //Build and set the graph
+            var graph = BuildParseForestGraphForChart(earleyChart);
+            ParseForestGraph = graph;
+        }
+        
+        public Graph BuildParseForestGraphForChart(IReadOnlyChart earleyChart)
+        {
+            var allParseForestNodes = new HashSet<IForestNode>();
+
+            List<IForestNode> parseNodes;
+            foreach (var earleySet in earleyChart.EarleySets)
+            {
+                parseNodes = earleySet.Scans.Select(c => c.ParseNode).Where(n => n != null).ToList();
+                foreach (var parseNode in parseNodes)
+                    allParseForestNodes.Add(parseNode);
+
+                parseNodes = earleySet.Predictions.Select(c => c.ParseNode).Where(n => n != null).ToList();
+                foreach (var parseNode in parseNodes)
+                    allParseForestNodes.Add(parseNode);
+
+                parseNodes = earleySet.Completions.Select(c => c.ParseNode).Where(n => n != null).ToList();
+                foreach (var parseNode in parseNodes)
+                    allParseForestNodes.Add(parseNode);
+                
+                parseNodes = earleySet.Transitions.Select(c => c.ParseNode).Where(n => n != null).ToList();
+                foreach (var parseNode in parseNodes)
+                    allParseForestNodes.Add(parseNode);
+            }
+
+            var parseForestGraph = new DebugMsaglParseForestGraph();
+            parseForestGraph.Build(allParseForestNodes.ToList());
+
+            return parseForestGraph.Graph;
+        }
+
+        private Graph BuildParseTreeGraphForParseRoot(IInternalForestNode parseRoot)
         {
             var parseTreeEnumerable = new ParseTreeEnumerable(parseRoot);
             var allTreeNodes = parseTreeEnumerable.ToList();
@@ -41,6 +88,12 @@ namespace RapidPliant.App.EarleyDebugger.Msagl
             var parseTreeGraph = new DebugMsaglParseTreeGraph();
             parseTreeGraph.Build(allTreeNodes);
             return parseTreeGraph.Graph;
+        }
+
+        public void ResetGraphs()
+        {
+            ParseForestGraph = null;
+            ParseTreeGraph = null;
         }
     }
 }

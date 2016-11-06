@@ -8,7 +8,14 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <RapidGrid Orientation="Horizontal">
 
-        <MsaglGraphView Graph="{BindTo root.ParseGraph.Graph}" set.Height="*" set.Width="*"></MsaglGraphView>
+        <GroupBox Header="Parse forest" set.Width="*" set.Height="*">
+            <MsaglGraphView Graph="{BindTo root.ParseGraph.ParseForestGraph}" set.Height="*" set.Width="*"></MsaglGraphView>
+        </GroupBox>
+
+        <GroupBox Header="Result tree" set.Height="*" set.Width="*">
+            <MsaglGraphView Graph="{BindTo root.ParseGraph.ParseTreeGraph}" set.Height="*" set.Width="*"></MsaglGraphView>
+        </GroupBox>
+
 
     </RapidGrid>
 </RapidView>

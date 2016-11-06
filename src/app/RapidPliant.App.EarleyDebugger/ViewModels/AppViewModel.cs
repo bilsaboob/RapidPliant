@@ -31,6 +31,16 @@ namespace RapidPliant.App.EarleyDebugger.ViewModels
             EarleyChart = ParseRunner.EarleyChart;
 
             onChange(() => ParseEngine.LastPulsedToken, RefreshParseResults);
+
+            onChange(() => EarleyChart.ActiveEarleySet, RefreshActiveEarleySets);
+        }
+
+        private void RefreshActiveEarleySets()
+        {
+            if (EarleyChart.EarleyChart.EarleySets.Count <= 1)
+            {
+                ParseResult.Reset();
+            }
         }
 
         private void RefreshParseResults()
@@ -43,9 +53,10 @@ namespace RapidPliant.App.EarleyDebugger.ViewModels
             if (engine.IsAccepted())
             {
                 parseRoot = engine.GetParseForestRootNode();
+                ParseResult.LoadParseResult(parseRoot);
             }
-            
-            ParseResult.LoadForParseForest(parseRoot);
+
+            ParseResult.LoadParseForest(EarleyChart.EarleyChart);
         }
 
         public ParseRunnerViewModel ParseRunner

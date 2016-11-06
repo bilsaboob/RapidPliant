@@ -43,7 +43,7 @@ namespace RapidPliant.App.Controls
         private void UpdateGraph(Graph graph)
         {
             GraphViewer.Graph = graph;
-            GraphViewer.SetInitialTransform(1, 20, 20);
+            GraphViewer.SetInitialTransform(1);
         }
 
         public Canvas GraphCanvas

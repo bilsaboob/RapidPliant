@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EarleyDebuggerApplication.cs" />
+    <Compile Include="Msagl\DebugMsaglParseForestGraph.cs" />
     <Compile Include="Msagl\DebugMsaglParseTreeGraph.cs" />
     <Compile Include="ViewModels\DebugMsaglParseTreeGraphViewModel.cs" />
     <Compile Include="Parsing\DebugParseEngine.cs" />

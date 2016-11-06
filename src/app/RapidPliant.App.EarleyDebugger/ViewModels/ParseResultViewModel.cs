@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Msagl.Drawing;
 using Pliant.Automata;
+using Pliant.Charts;
 using Pliant.Forest;
 using Pliant.Tree;
 using RapidPliant.App.EarleyDebugger.Msagl;
@@ -27,9 +28,19 @@ namespace RapidPliant.App.EarleyDebugger.ViewModels
             set { set(() => ParseGraph, value); }
         }
 
-        public void LoadForParseForest(IInternalForestNode parseRoot)
+        public void LoadParseResult(IInternalForestNode parseRoot)
         {
-            ParseGraph.LoadForParseForest(parseRoot);
+            ParseGraph.LoadParseTree(parseRoot);
+        }
+
+        public void LoadParseForest(IReadOnlyChart earleyChart)
+        {
+            ParseGraph.LoadParseForest(earleyChart);
+        }
+
+        public void Reset()
+        {
+            ParseGraph.ResetGraphs();
         }
     }
 }

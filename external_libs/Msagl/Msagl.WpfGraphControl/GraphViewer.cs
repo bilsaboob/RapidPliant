@@ -1007,10 +1007,15 @@ namespace Microsoft.Msagl.WpfGraphControl {
         /// <summary>
         /// zooms to the default view
         /// </summary>
-        public void SetInitialTransform() {
+        public void SetInitialTransform()
+        {
             if (_drawingGraph == null || GeomGraph == null) return;
 
-            var scale = FitFactor;
+            SetInitialTransform(FitFactor);
+        }
+
+        public void SetInitialTransform(double scale) {
+            if (_drawingGraph == null || GeomGraph == null) return;
             
             var graphCenter = GeomGraph.BoundingBox.Center;
             var vp = new Rectangle(new Point(0, 0),

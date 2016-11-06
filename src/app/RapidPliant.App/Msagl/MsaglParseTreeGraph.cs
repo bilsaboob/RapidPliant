@@ -47,4 +47,37 @@ namespace RapidPliant.App.Msagl
             return "";
         }
     }
+
+    public class InternalForestAndNode : IForestNode
+    {
+        public InternalForestAndNode(IForestNode sourceNode, IAndForestNode andForestNode)
+        {
+            SourceNode = sourceNode;
+            AndNode = andForestNode;
+
+            Origin = sourceNode.Origin;
+            Location = sourceNode.Location;
+            NodeType = ForestNodeType.Intermediate;
+
+            Children = andForestNode.Children.ToList();
+        }
+
+        public IForestNode SourceNode { get; set; }
+        public IAndForestNode AndNode { get; set; }
+
+        public int Origin { get; private set; }
+        public int Location { get; private set; }
+        public ForestNodeType NodeType { get; private set; }
+
+        public IReadOnlyList<IForestNode> Children { get; private set; }
+
+        public void Accept(IForestNodeVisitor visitor)
+        {
+        }
+
+        public override string ToString()
+        {
+            return SourceNode.ToString();
+        }
+    }
 }

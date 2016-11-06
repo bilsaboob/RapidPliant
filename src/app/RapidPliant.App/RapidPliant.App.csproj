@@ -60,6 +60,7 @@
       <DependentUpon>MsaglGraphView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Msagl\MsaglGraph.cs" />
+    <Compile Include="Msagl\MsaglParseForestGraph.cs" />
     <Compile Include="Msagl\MsaglParseTreeGraph.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
