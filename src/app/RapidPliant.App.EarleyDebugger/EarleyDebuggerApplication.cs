@@ -11,6 +11,7 @@ namespace RapidPliant.App.EarleyDebugger
             var window = base.CreateMainWindow();
             window.Width = 1400;
             window.Height = 600;
+            window.Title = "RapidPliant - Earley Debugger";
             return window;
         }
 

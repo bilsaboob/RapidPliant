@@ -75,8 +75,8 @@ namespace RapidPliant.RapidBnf.Grammar
                 ;
 
             RuleDef.Rule =
-                    RuleExpr
-                |   RuleExpr + RuleDef
+                    RuleExpr + RuleDef
+                |   RuleExpr
                 ;
 
             RuleExpr.Rule =

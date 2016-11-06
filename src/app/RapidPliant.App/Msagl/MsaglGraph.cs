@@ -121,9 +121,12 @@ namespace RapidPliant.App.Msagl
             foreach (var fromState in states)
             {
                 var transitions = GetStateTransitions(fromState);
-                foreach (var transition in transitions)
+                if (transitions != null)
                 {
-                    CreateGraphEdge(fromState, transition);
+                    foreach (var transition in transitions)
+                    {
+                        CreateGraphEdge(fromState, transition);
+                    }
                 }
             }
         }

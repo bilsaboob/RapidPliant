@@ -18,9 +18,15 @@
             <views:ParseRunnerView></views:ParseRunnerView>
         </GroupBox>
 
-        <GroupBox Header="Chart" set.Width="*" set.Height="*">
-            <views:EarleyChartView></views:EarleyChartView>
-        </GroupBox>
+        <RapidGrid Orientation="Vertical" set.Height="*" set.Width="*">
+            <GroupBox Header="Chart" set.Width="*" MinHeight="250">
+                <views:EarleyChartView></views:EarleyChartView>
+            </GroupBox>
+
+            <GroupBox Header="Parse tree" set.Width="*" set.Height="*">
+                <views:ParseResultView></views:ParseResultView>
+            </GroupBox>
+        </RapidGrid>
 
     </RapidGrid>
 </RapidView>

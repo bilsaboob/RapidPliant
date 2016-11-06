@@ -126,6 +126,8 @@ namespace Microsoft.Msagl.WpfGraphControl {
             get { return _graphCanvas; }
         }
 
+        public bool ZoomOnResizeEnabled { get; set; }
+
         public GraphViewer() {
             //LargeGraphNodeCountThreshold = 0;
             layoutEditor = new LayoutEditor(this);
@@ -513,6 +515,10 @@ namespace Microsoft.Msagl.WpfGraphControl {
 
         void GraphCanvasSizeChanged(object sender, SizeChangedEventArgs e) {
             if (_drawingGraph == null) return;
+
+            if(!ZoomOnResizeEnabled)
+                return;
+
             // keep the same zoom level
             double oldfit = GetFitFactor(e.PreviousSize);
             double fitNow = FitFactor;
@@ -1005,11 +1011,22 @@ namespace Microsoft.Msagl.WpfGraphControl {
             if (_drawingGraph == null || GeomGraph == null) return;
 
             var scale = FitFactor;
+            
             var graphCenter = GeomGraph.BoundingBox.Center;
             var vp = new Rectangle(new Point(0, 0),
                                    new Point(_graphCanvas.RenderSize.Width, _graphCanvas.RenderSize.Height));
             
             SetTransformOnViewportWithoutRaisingViewChangeEvent(scale, graphCenter, vp);
+        }
+
+        public void SetInitialTransform(double scale, double xOffset, double yOffset)
+        {
+            if (_drawingGraph == null || GeomGraph == null) return;
+            
+            var dx = GeomGraph.BoundingBox.Left + (scale*GeomGraph.BoundingBox.Center.X) + (scale*xOffset);
+            var dy = (scale*GeomGraph.BoundingBox.Top) + (scale*yOffset);
+
+            SetTransformWithoutRaisingViewChangeEvent(scale, dx, dy);
         }
 
         public Image DrawImage(string fileName)

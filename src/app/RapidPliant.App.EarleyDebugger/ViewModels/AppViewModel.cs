@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Pliant.Forest;
 using Pliant.Grammars;
 using Pliant.RegularExpressions;
 using Pliant.Runtime;
@@ -28,6 +29,23 @@ namespace RapidPliant.App.EarleyDebugger.ViewModels
 
             ParseEngine = ParseRunner.ParseEngine;
             EarleyChart = ParseRunner.EarleyChart;
+
+            onChange(() => ParseEngine.LastPulsedToken, RefreshParseResults);
+        }
+
+        private void RefreshParseResults()
+        {
+            var engine = ParseEngine.ParseEngine;
+            if(engine == null)
+                return;
+
+            IInternalForestNode parseRoot = null;
+            if (engine.IsAccepted())
+            {
+                parseRoot = engine.GetParseForestRootNode();
+            }
+            
+            ParseResult.LoadForParseForest(parseRoot);
         }
 
         public ParseRunnerViewModel ParseRunner
@@ -46,6 +64,12 @@ namespace RapidPliant.App.EarleyDebugger.ViewModels
         {
             get { return get(() => EarleyChart); }
             set { set(() => EarleyChart, value); }
+        }
+
+        public ParseResultViewModel ParseResult
+        {
+            get { return get(() => ParseResult); }
+            set { set(() => ParseResult, value); }
         }
 
         public string ParseInput

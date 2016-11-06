@@ -56,6 +56,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EarleyDebuggerApplication.cs" />
+    <Compile Include="Msagl\DebugMsaglParseTreeGraph.cs" />
+    <Compile Include="ViewModels\DebugMsaglParseTreeGraphViewModel.cs" />
     <Compile Include="Parsing\DebugParseEngine.cs" />
     <Compile Include="Parsing\DebugParseRunner.cs" />
     <Compile Include="Parsing\RunParseTask.cs" />
@@ -76,7 +78,11 @@
     <Compile Include="ViewModels\AppViewModel.cs" />
     <Compile Include="ViewModels\ParseEngineViewModel.cs" />
     <Compile Include="ViewModels\IParserViewModel.cs" />
+    <Compile Include="ViewModels\ParseResultViewModel.cs" />
     <Compile Include="ViewModels\ParseRunnerViewModel.cs" />
+    <Compile Include="Views\ParseResultView.xaml.cs">
+      <DependentUpon>ParseResultView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\EarleyChartView.xaml.cs">
       <DependentUpon>EarleyChartView.xaml</DependentUpon>
     </Compile>
@@ -131,6 +137,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\ParseResultView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\EarleyChartView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

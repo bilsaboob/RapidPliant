@@ -174,6 +174,12 @@ namespace RapidPliant.Mvx
             var prop = GetOrCreateMemberEntry(memberName);
             return prop.GetValue<object>();
         }
+
+        protected void onChange<TValue>(Expression<Func<TValue>> memberExpression, Action onChangeAction)
+        {
+            var prop = GetOrCreateMemberEntry(memberExpression);
+            prop.AddOnChangeCallback(new OnMemberChangeCallback(onChangeAction));
+        }
         #endregion
 
         #region helpers
@@ -235,12 +241,16 @@ namespace RapidPliant.Mvx
         {
             public MemberEntry(MemberInfoPath memberPath)
             {
+                OnMemberChangeCallbacks = new List<IOnMemberChangeCallback>();
+
                 if (memberPath != null)
                 {
                     MemberPath = memberPath;
                     Member = new QualifiedMember(MemberPath);
-                }
+                }                
             }
+
+            public List<IOnMemberChangeCallback> OnMemberChangeCallbacks { get; set; }
 
             public QualifiedMember Member { get; private set; }
             public MemberInfoPath MemberPath { get; private set; }
@@ -255,11 +265,18 @@ namespace RapidPliant.Mvx
                 if (source == null)
                     return;
 
-                Value = value;
+                var prevValue = Value;
+                var newValue = value;
+                Value = newValue;
 
+                if (!ValuesEqual(prevValue, newValue))
+                {
+                    TriggerOnChangeCallbacks(prevValue, newValue);
+                }
+                
                 source.OnPropertyChanged(Name);
             }
-
+            
             public virtual TValue GetValue<TValue>()
             {
                 if (Value == null)
@@ -268,6 +285,45 @@ namespace RapidPliant.Mvx
                 }
 
                 return (TValue)Value;
+            }
+
+            public virtual void RefreshValue(RapidViewModel source)
+            {
+                //Refresh the internal value... for simple members, this is not needed
+            }
+
+            protected bool ValuesEqual(object prevValue, object newValue)
+            {
+                if (prevValue == null && newValue == null)
+                    return false;
+
+                if (prevValue == newValue)
+                    return false;
+
+                if (prevValue != null)
+                {
+                    return prevValue.Equals(newValue);
+                }
+                else if(newValue != null)
+                {
+                    return newValue.Equals(prevValue);
+                }
+
+                return false;
+            }
+
+            protected void TriggerOnChangeCallbacks(object prevValue, object newValue)
+            {
+                foreach (var onChangeCallback in OnMemberChangeCallbacks.ToList())
+                {
+                    onChangeCallback.MemberChanged(Name, prevValue, newValue);
+                }
+            }
+
+            public void AddOnChangeCallback(IOnMemberChangeCallback onMemberChangeCallback)
+            {
+                if(!OnMemberChangeCallbacks.Contains(onMemberChangeCallback))
+                    OnMemberChangeCallbacks.Add(onMemberChangeCallback);
             }
         }
 
@@ -290,6 +346,44 @@ namespace RapidPliant.Mvx
 
                 //Notify about the first path name...
                 source.OnPropertyChanged(MemberPath.FullPathName);
+            }
+
+            public override void RefreshValue(RapidViewModel source)
+            {
+                //We need to refresh the full member path value
+                var prevValue = Value;
+                var newValue = Member.GetValueForRoot(source);
+                Value = newValue;
+
+                if (!ValuesEqual(prevValue, newValue))
+                {
+                    TriggerOnChangeCallbacks(prevValue, newValue);
+                }
+
+                source.OnPropertyChanged(MemberPath.FullPathName);
+            }
+        }
+
+        interface IOnMemberChangeCallback
+        {
+            void MemberChanged(string memberName, object oldValue, object newValue);
+        }
+
+        class OnMemberChangeCallback : IOnMemberChangeCallback
+        {
+            private Action _callbackAction;
+
+            public OnMemberChangeCallback(Action callbackAction)
+            {
+                _callbackAction = callbackAction;
+            }
+
+            public void MemberChanged(string memberName, object oldValue, object newValue)
+            {
+                if (_callbackAction != null)
+                {
+                    _callbackAction();
+                }
             }
         }
 
@@ -455,7 +549,9 @@ namespace RapidPliant.Mvx
                 if (!ValueEquals(MemberValue, memberValue))
                 {
                     MemberValue = memberValue;
-                    
+
+                    MemberEntry.RefreshValue(Root);
+
                     if (NextMemberListener != null)
                         NextMemberListener.ResetForTarget(memberValue);
                 }

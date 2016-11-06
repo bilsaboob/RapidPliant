@@ -153,7 +153,6 @@ namespace RapidPliant.Mvx.Binding
         {
             EnsureInitialized();
             
-            
             var pathIter = new PathIterator(ActualPath.Path);
             var targetViewModel = GetTargetViewModel(pathIter);
 

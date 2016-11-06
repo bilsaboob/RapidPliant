@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <RapidGrid Orientation="Horizontal">
-        <RapidScrollViewer set.Width="*" set.Height="Auto" HorizontalAlignment="Stretch" MinHeight="100" ReScrollToRightEnd="{BindTo ActiveEarleySetChanged}"
+        <RapidScrollViewer set.Width="*" set.Height="Auto" HorizontalAlignment="Stretch" MinHeight="250" ReScrollToRightEnd="{BindTo ActiveEarleySetChanged}"
                 HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Disabled" CanContentScroll="True">
             <RapidGrid Orientation="Horizontal" set.Width="*" set.Height="*" MinHeight="100"
                            Items="{BindTo EarleySets}">
