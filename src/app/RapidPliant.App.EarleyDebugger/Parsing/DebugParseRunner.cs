@@ -10,6 +10,8 @@ namespace RapidPliant.App.EarleyDebugger.Parsing
 {
     public class DebugParseRunner : IParseRunner
     {
+        private static readonly ILexeme[] _emptyActiveLexemes = new ILexeme[0];
+
         public DebugParseRunner(IParseRunner parseRunnerToDebug)
         {
             TargetParseRunner = parseRunnerToDebug;
@@ -26,7 +28,19 @@ namespace RapidPliant.App.EarleyDebugger.Parsing
             return TargetParseRunner.EndOfStream();
         }
 
-        public IEnumerable<ILexeme> ActiveLexemes { get { return TargetParseRunner.ActiveLexemes; } }
+        public IEnumerable<ILexeme> ActiveLexemes
+        {
+            get
+            {
+                var parseRunner = TargetParseRunner as ParseRunner;
+                if (parseRunner != null)
+                {
+                    return parseRunner.ActiveLexemes;
+                }
+
+                return _emptyActiveLexemes;
+            }
+        }
 
         public bool Read()
         {
