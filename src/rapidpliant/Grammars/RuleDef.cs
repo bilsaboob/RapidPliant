@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Pliant.Automata;
 using Pliant.Builders;
 using Pliant.Builders.Expressions;
 using Pliant.Grammars;
+using Pliant.Tokens;
 
 namespace RapidPliant.Grammars
 {
@@ -308,7 +310,20 @@ namespace RapidPliant.Grammars
         public bool Ignore { get; set; }
         
         ILexerRule ILexDef.LexerRule { get { return Rule; } }
-        
+
+        public override string Name
+        {
+            get { return base.Name; }
+            protected internal set
+            {
+                base.Name = value;
+                if (!string.IsNullOrEmpty(value) && _lexRule != null && _lexRule.TokenType != null && _lexRule.TokenType.Id != value)
+                {
+                    _lexRule.TokenType = new TokenType(value);
+                }
+            }
+        }
+
         public BaseLexerRule Rule
         {
             get
@@ -319,6 +334,10 @@ namespace RapidPliant.Grammars
             set
             {
                 _lexRule = value;
+                if (Name != null)
+                {
+                    _lexRule.TokenType = new TokenType(Name);
+                }
             }
         }
 

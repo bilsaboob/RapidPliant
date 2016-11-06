@@ -11,6 +11,22 @@ namespace RapidPliant.Mvx.Controls
 {
     public class RapidScrollViewer : ScrollViewer
     {
+        public static readonly DependencyProperty AutoScrollToRightEndProperty = DependencyProperty.RegisterAttached(
+            "AutoScrollToRightEnd",
+            typeof(bool),
+            typeof(RapidScrollViewer),
+            new PropertyMetadata(false, AutoScrollToEndChanged)
+        );
+
+        private static void AutoScrollToEndChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var scrollViewer = d as RapidScrollViewer;
+            if(scrollViewer == null)
+                return;
+
+            scrollViewer.AutoScrollToRightEnd = (bool) e.NewValue;
+        }
+
         public RapidScrollViewer()
         {
             InitializedChildren = new HashSet<FrameworkElement>();
@@ -18,10 +34,46 @@ namespace RapidPliant.Mvx.Controls
 
         private HashSet<FrameworkElement> InitializedChildren { get; set; }
 
+        public bool AutoScrollToRightEnd
+        {
+            get { return (bool)GetValue(AutoScrollToRightEndProperty); }
+            set
+            {
+                SetValue(AutoScrollToRightEndProperty, value);
+
+                if (value)
+                {
+                    EnableScrollToRightEnd();
+                }
+                else
+                {
+                    DisableScrollToRightEnd();
+                }
+            }
+        }
+
+        private void DisableScrollToRightEnd()
+        {
+            ScrollChanged -= OnScrollChanged;
+        }
+
+        private void EnableScrollToRightEnd()
+        {
+            ScrollChanged += OnScrollChanged;
+            ScrollToRightEnd();
+        }
+
+        private void OnScrollChanged(object sender, ScrollChangedEventArgs scrollChangedEventArgs)
+        {
+            var scrollViewer = (ScrollViewer)sender;
+            if (scrollViewer.HorizontalOffset == scrollViewer.ScrollableWidth)
+                ScrollToRightEnd();
+        }
+
         protected override void OnVisualChildrenChanged(DependencyObject visualAdded, DependencyObject visualRemoved)
         {
             base.OnVisualChildrenChanged(visualAdded, visualRemoved);
-            
+
             var newChildren = new HashSet<FrameworkElement>();
             foreach (var child in this.GetImmediateVisualChildren().CastEachAs<FrameworkElement>())
             {

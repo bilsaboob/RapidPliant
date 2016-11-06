@@ -6,15 +6,17 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <RapidGrid set.Width="*" Orientation="Vertical">
+        <TextBlock Text="{BindTo LocationLabel}" FontSize="14" FontWeight="Bold" TextAlignment="Center" Background="{BindTo IsCurrent?Yellow:Green}"></TextBlock>
+        
         <GroupBox Header="Pulsed token">
             <RapidGrid Orientation="Vertical">
                 <RapidGrid Orientation="Horizontal">
-                    <Label>Spelling:</Label>
-                    <TextBlock Text="{BindTo PulsedToken.Spelling}"></TextBlock>
+                    <TextBlock VerticalAlignment="Center" Margin="0 0 10 0">Spelling:</TextBlock>
+                    <TextBlock VerticalAlignment="Center" Text="{BindTo PulsedToken.Spelling}"></TextBlock>
                 </RapidGrid>
                 <RapidGrid Orientation="Horizontal">
-                    <Label>Token type:</Label>
-                    <TextBlock Text="{BindTo PulsedToken.TokenTypeLabel}"></TextBlock>
+                    <TextBlock VerticalAlignment="Center" Margin="0 0 10 0">Token type:</TextBlock>
+                    <TextBlock VerticalAlignment="Center" Text="{BindTo PulsedToken.TokenTypeLabel}"></TextBlock>
                 </RapidGrid>
             </RapidGrid>
         </GroupBox>

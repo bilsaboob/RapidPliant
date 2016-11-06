@@ -29,6 +29,12 @@ namespace RapidPliant.App.ViewModels.Earley
 
             Location = EarleySet.Location;
 
+            LocationLabel = $"{Location}";
+            if (Location == 0)
+            {
+                LocationLabel = "Start";
+            }
+
             Scans = new ObservableCollection<EarleyStateViewModel>(EarleySet.Scans.Select(state => new EarleyStateViewModel().LoadFromState(state)));
             Predictions = new ObservableCollection<EarleyStateViewModel>(EarleySet.Predictions.Select(state => new EarleyStateViewModel().LoadFromState(state)));
             Completions = new ObservableCollection<EarleyStateViewModel>(EarleySet.Completions.Select(state => new EarleyStateViewModel().LoadFromState(state)));
@@ -40,7 +46,10 @@ namespace RapidPliant.App.ViewModels.Earley
             return this;
         }
 
+        public string LocationLabel { get { return get(() => LocationLabel); } set { set(() => LocationLabel, value); } }
         public int Location { get { return get(() => Location); } set { set(() => Location, value); } }
+
+        public bool IsCurrent { get { return get(() => IsCurrent); } set { set(() => IsCurrent, value); } }
 
         public TokenViewModel PulsedToken { get { return get(() => PulsedToken); } set { set(() => PulsedToken, value); } }
         public bool PulsedTokenSuccess { get { return get(() => PulsedTokenSuccess); } set { set(() => PulsedTokenSuccess, value); } }

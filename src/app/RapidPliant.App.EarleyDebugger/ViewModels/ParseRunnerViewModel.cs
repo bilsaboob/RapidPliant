@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Pliant.Grammars;
 using Pliant.Runtime;
+using Pliant.Tokens;
 using RapidPliant.App.EarleyDebugger.Parsing;
 using RapidPliant.App.EarleyDebugger.ViewModels;
 using RapidPliant.App.Services;
@@ -31,6 +32,9 @@ namespace RapidPliant.App.ViewModels.Grammar
             GrammarService = new DebuggerGrammarService();
 
             Grammars = new ObservableCollection<GrammarViewModel>();
+            ActiveLexemes = new ObservableCollection<LexemeViewModel>();
+            CompletedLexemes = new ObservableCollection<LexemeViewModel>();
+            DiscaredLexemes = new ObservableCollection<LexemeViewModel>();
         }
 
         #region Load
@@ -66,55 +70,175 @@ namespace RapidPliant.App.ViewModels.Grammar
             }
         }
 
+        public ObservableCollection<LexemeViewModel> ActiveLexemes { get { return get(() => ActiveLexemes); } set { set(() => ActiveLexemes, value); } }
+
+        public ObservableCollection<LexemeViewModel> CompletedLexemes { get { return get(() => CompletedLexemes); } set { set(() => CompletedLexemes, value); } }
+
+        public ObservableCollection<LexemeViewModel> DiscaredLexemes { get { return get(() => DiscaredLexemes); } set { set(() => DiscaredLexemes, value); } }
+
+        public InputViewModel Input { get { return get(() => Input); } set { set(() => Input, value); } }
+        
         public bool IsStarted { get { return get(() => IsStarted); } set { set(() => IsStarted, value); } }
 
         public bool CanLexNext { get { return get(() => CanLexNext); } set { set(() => CanLexNext, value); } }
 
+        public bool CanPulseNext { get { return get(() => CanPulseNext); } set { set(() => CanPulseNext, value); } }
+
         public bool ReachedEndOfInput { get { return get(() => ReachedEndOfInput); } set { set(() => ReachedEndOfInput, value); } }
 
         public bool LastReadFailed { get { return get(() => LastReadFailed); } set { set(() => LastReadFailed, value); } }
+
+        public bool PulsedNewSet { get { return get(() => PulsedNewSet); } set { set(() => PulsedNewSet, value); } }
+
+        public string ParseInput
+        {
+            get { return get(() => ParseInput); }
+            set
+            {
+                Input.LoadForInput(value);
+                RefreshInput();
+                set(() => ParseInput, value);
+            }
+        }
         
-        public string ParseInput { get { return get(() => ParseInput); } set { set(() => ParseInput, value); } }
+        public int InputPosition { get { return get(() => InputPosition); } set { set(() => InputPosition, value); } }
+
+        public int InputLineNo { get { return get(() => InputLineNo); } set { set(() => InputLineNo, value); } }
+
+        public int InputColNo { get { return get(() => InputColNo); } set { set(() => InputColNo, value); } }
         #endregion
 
         #region ViewModel Actions
         public void StartOrRestartParsing()
         {
+            ActiveLexemes.Clear();
+            DiscaredLexemes.Clear();
+            CompletedLexemes.Clear();
+            
             TargetParseEngine = new ParseEngine(_grammar);
             DebugParseEngine = new DebugParseEngine(TargetParseEngine);
-
+            
             TargetParseRunner = new ParseRunner(DebugParseEngine, ParseInput);
             DebugParseRunner = new DebugParseRunner(TargetParseRunner);
             
             //Loadthe parse engine
             ParseEngine.LoadParseEngine(DebugParseEngine);
+            
+            //Refresh chart and init the lexemes
+            RefreshChart();
+            RefreshLexemes(new List<ILexeme>(), DebugParseRunner.ActiveLexemes.ToList());
 
             Reset();
         }
 
+        public void PulseNext()
+        {
+            while (true)
+            {
+                if(!CanLexNext || !CanPulseNext) 
+                    break;
+
+                Lex(false);
+
+                if (ParseEngine.HasPulsedForPulsePass)
+                {
+                    ParseEngine.StartNewPulsePass();
+                    break;
+                }
+            }
+        }
+
         public void LexNext()
         {
-            RefreshCanLex();
+            Lex();
+        }
 
-            BeginRead();
+        private void Lex(bool startNewPulsePass = true)
+        {
+            RefreshCanLexPulse();
 
+            var preReadLexemes = DebugParseRunner.ActiveLexemes.ToList();
+
+            //Do the read
             var readResult = Read();
             LastReadFailed = !readResult;
             CanLexNext = !LastReadFailed;
+            CanPulseNext = !LastReadFailed;
+            
+            RefreshInput(DebugParseRunner.Position);
 
-            EndRead();
+            var postReadLexems = DebugParseRunner.ActiveLexemes.ToList();
 
-            RefreshChart();
+            RefreshLexemes(preReadLexemes, postReadLexems);
+
+            RefreshChart(startNewPulsePass);
+        }
+
+        private void RefreshLexemes(List<ILexeme> preReadLexemes, List<ILexeme> postReadLexemes)
+        {
+            //The new active lexemes are the ones post the read
+            var newActiveLexemes = postReadLexemes.ToList();
+
+            //Check the lexemes that were removed, either a spelling was captured or simply didn't match anymore
+            var removedLexemes = preReadLexemes.Except(postReadLexemes).ToList();
+
+            //Check for any new lexemes
+            var newLexemes = postReadLexemes.Except(preReadLexemes).ToList();
+            
+            ActiveLexemes.Clear();
+            DiscaredLexemes.Clear();
+            CompletedLexemes.Clear();
+
+            foreach (var lexeme in newActiveLexemes)
+            {
+                var lexemeVm = new LexemeViewModel().LoadForLexeme(lexeme);
+
+                var isIgnore = _grammar.Ignores.Contains(lexeme.LexerRule);
+                if (isIgnore)
+                {
+                    lexemeVm.DisplayLabel = lexemeVm.DisplayLabel.TrimEnd() + " (ignore)";
+                }
+
+                if (newLexemes.Contains(lexeme))
+                {
+                    lexemeVm.DisplayLabel = lexemeVm.DisplayLabel.TrimEnd() + " **new**";
+                }
+                
+                ActiveLexemes.Add(lexemeVm);
+            }
+
+            foreach (var lexeme in removedLexemes)
+            {
+                var lexemeVm = new LexemeViewModel().LoadForLexeme(lexeme);
+
+                var isIgnore = _grammar.Ignores.Contains(lexeme.LexerRule);
+                if (isIgnore)
+                {
+                    lexemeVm.DisplayLabel = lexemeVm.DisplayLabel.TrimEnd() + " (ignore)";
+                }
+
+                if (lexeme.IsAccepted())
+                {
+                    CompletedLexemes.Add(lexemeVm);
+                }
+                else
+                {
+                    DiscaredLexemes.Add(lexemeVm);
+                }
+            }
         }
         #endregion
 
         #region Internal helpers
         protected void Reset()
         {
+            Input.Reset();
+            RefreshInput();
+
             //Load the chart
             EarleyChart.LoadFromChart(TargetParseEngine.Chart);
             
-            RefreshCanLex();
+            RefreshCanLexPulse();
             
             //Start a new pulse pass
             ParseEngine.StartNewPulsePass();
@@ -122,44 +246,44 @@ namespace RapidPliant.App.ViewModels.Grammar
             IsStarted = true;
         }
 
-        protected virtual void RefreshCanLex()
+        protected virtual void RefreshCanLexPulse()
         {
             if (DebugParseRunner == null)
             {
                 CanLexNext = false;
+                CanPulseNext = false;
             }
             else if (DebugParseRunner.EndOfStream())
             {
                 CanLexNext = false;
+                CanPulseNext = false;
                 ReachedEndOfInput = true;
             }
             else
             {
                 CanLexNext = true;
+                CanPulseNext = true;
                 ReachedEndOfInput = false;
             }
         }
-
-        protected void BeginRead()
-        {
-        }
-
+        
         protected bool Read()
         {
             return DebugParseRunner.Read();
         }
 
-        protected void EndRead()
-        {
-        }
-
-        protected void RefreshChart()
+        protected void RefreshChart(bool startNewPulsePass = true)
         {
             EarleyChart.RefreshFromChart();
-            RefreshLastSetForPulse();
+
+            if (RefreshLastSetForPulse() && startNewPulsePass)
+            {
+                //Start the next pulse pass
+                ParseEngine.StartNewPulsePass();
+            }
         }
         
-        protected void RefreshLastSetForPulse()
+        protected bool RefreshLastSetForPulse()
         {
             ParseEngine.RefreshForPulsePass();
             if (ParseEngine.HasPulsedForPulsePass)
@@ -172,9 +296,20 @@ namespace RapidPliant.App.ViewModels.Grammar
                     lastSet.PulsedTokenSuccess = ParseEngine.LastPulsedTokenSuccess;
                 }
 
-                //Start the next pulse pass
-                ParseEngine.StartNewPulsePass();
+                return true;
             }
+
+            return false;
+        }
+
+        private void RefreshInput(int moveToPosition = 0)
+        {
+            if (moveToPosition > 0)
+                Input.MoveNext(moveToPosition);
+            
+            InputPosition = Input.Position;
+            InputLineNo = Input.LineNo;
+            InputColNo = Input.ColNo;
         }
         #endregion
     }

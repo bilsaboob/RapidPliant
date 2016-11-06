@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Pliant.Runtime;
+using Pliant.Tokens;
 
 namespace RapidPliant.App.EarleyDebugger.Parsing
 {
@@ -24,6 +25,8 @@ namespace RapidPliant.App.EarleyDebugger.Parsing
         {
             return TargetParseRunner.EndOfStream();
         }
+
+        public IEnumerable<ILexeme> ActiveLexemes { get { return TargetParseRunner.ActiveLexemes; } }
 
         public bool Read()
         {

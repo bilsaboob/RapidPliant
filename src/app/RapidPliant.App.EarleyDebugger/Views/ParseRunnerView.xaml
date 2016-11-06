@@ -5,23 +5,73 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <RapidGrid Orientation="Vertical">
-        <ComboBox FontSize="16" FontFamily="Consolas"
+    <RapidGrid Orientation="Vertical" set.Width="*">
+        <ComboBox FontSize="14"
             ItemsSource="{BindTo Grammars}" 
             SelectedItem="{BindTo Grammar}" 
             DisplayMemberPath="Name" />
+        
+        <RapidGrid Orientation="Horizontal" set.Width="*" Margin="0 5">
 
-        <RapidGrid Orientation="Horizontal">
-
-            <Button FontSize="16" FontFamily="Consolas" VerticalContentAlignment="Center" Width="90" Margin="0 0 25 0"
+            <Button FontSize="14" VerticalContentAlignment="Center" Width="90" Margin="0 0 25 0"
                 Click="{BindTo StartOrRestartParsing()}"
                 Content="{BindTo !IsStarted?Start:Restart}" />
 
             <Label set.Width="*"></Label>
 
-            <Button FontSize="16" FontFamily="Consolas" VerticalContentAlignment="Center" Width="90" HorizontalAlignment="Right"
-                Click="{BindTo LexNext()}"
+            <Button FontSize="14" VerticalContentAlignment="Center" Width="90" HorizontalAlignment="Right" Margin="0 0 5 0"
+                Click="{BindTo LexNext()}" IsEnabled="{BindTo CanLexNext}"
                 Content="Lex next" />
+
+            <Button FontSize="14" VerticalContentAlignment="Center" Width="90" HorizontalAlignment="Right"
+                Click="{BindTo PulseNext()}" IsEnabled="{BindTo CanPulseNext}"
+                Content="Pulse next" />
+
         </RapidGrid>
+
+        <RapidGrid Orientation="Horizontal" set.Width="*">
+            <GroupBox Header="Location info" set.Width="*">
+                <RapidGrid Orientation="Horizontal" VerticalContentAlignment="Center">
+                    <TextBlock VerticalAlignment="Center" 
+                               Text="Position:" />
+                    <TextBlock VerticalAlignment="Center" Margin="5 0 20 0"
+                               Text="{BindTo InputPosition}" />
+
+                    <TextBlock VerticalAlignment="Center" 
+                               Text="Line:"></TextBlock>
+                    <TextBlock VerticalAlignment="Center" Margin="5 0"
+                               Text="{BindTo InputLineNo}" />
+
+                    <TextBlock VerticalAlignment="Center" 
+                               Text="Col:" />
+                    <TextBlock VerticalAlignment="Center" Margin="5 0"
+                               Text="{BindTo InputColNo}" />
+
+                    <Label set.Width="*"></Label>
+                    
+                    <Button FontSize="14" VerticalContentAlignment="Center" VerticalAlignment="Center"
+                        Click="{BindTo GoToInputLocation()}" IsEnabled="{BindTo CanGoToInputLocation}"
+                        Content="Go to" />
+                </RapidGrid>
+            </GroupBox>
+        </RapidGrid>
+
+        <GroupBox Header="Active lexemes">
+            <RapidGrid Items="{BindTo ActiveLexemes}" Orientation="Vertical">
+                <TextBlock Text="{BindTo DisplayLabel}"></TextBlock>
+            </RapidGrid>
+        </GroupBox>
+
+        <GroupBox Header="Completed lexemes">
+            <RapidGrid Items="{BindTo CompletedLexemes}" Orientation="Vertical">
+                <TextBlock Text="{BindTo DisplayLabel}"></TextBlock>
+            </RapidGrid>
+        </GroupBox>
+
+        <GroupBox Header="Discarded lexemes">
+            <RapidGrid Items="{BindTo DiscaredLexemes}" Orientation="Vertical">
+                <TextBlock Text="{BindTo DisplayLabel}"></TextBlock>
+            </RapidGrid>
+        </GroupBox>
     </RapidGrid>
 </RapidView>

@@ -184,7 +184,8 @@ namespace RapidPliant.Mvx.Controls
             {
                 foreach (var content in contents)
                 {
-                    Contents.Add(content);
+                    if(!Contents.Contains(content))
+                        Contents.Add(content);
                 }
             }
         }
@@ -435,7 +436,8 @@ namespace RapidPliant.Mvx.Controls
             {
                 foreach (var content in contents)
                 {
-                    Add(content);
+                    if(!Contains(content))
+                        Add(content);
                 }
             }
         }

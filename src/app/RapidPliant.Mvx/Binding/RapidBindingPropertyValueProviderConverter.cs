@@ -150,11 +150,8 @@ namespace RapidPliant.Mvx.Binding
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             EnsureInitialized();
-
-            if (ActualPath.Path.StartsWith("Test"))
-            {
-            }
-            if (ActualPath.Path.StartsWith("Scans"))
+            
+            if (ActualPath.Path.StartsWith("IsActive"))
             {
             }
             var pathIter = new PathIterator(ActualPath.Path);

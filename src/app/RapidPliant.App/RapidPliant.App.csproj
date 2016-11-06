@@ -77,6 +77,8 @@
     <Compile Include="ViewModels\Earley\EarleyChartViewModel.cs" />
     <Compile Include="ViewModels\Earley\EarleySetViewModel.cs" />
     <Compile Include="ViewModels\Earley\EarleyStateViewModel.cs" />
+    <Compile Include="ViewModels\Earley\InputViewModel.cs" />
+    <Compile Include="ViewModels\Earley\LexemeViewModel.cs" />
     <Compile Include="ViewModels\Earley\ProductionViewModel.cs" />
     <Compile Include="ViewModels\Earley\SymbolViewModel.cs" />
     <Compile Include="ViewModels\Earley\TokenViewModel.cs" />

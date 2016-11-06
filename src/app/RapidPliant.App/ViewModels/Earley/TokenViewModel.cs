@@ -35,7 +35,7 @@ namespace RapidPliant.App.ViewModels.Earley
             Spelling = Token.Value;
             InputPosition = Token.Position;
 
-            TokenTypeLabel = TokenType.Id.ToString();
+            TokenTypeLabel = $"{TokenType.Id}";
 
             return this;
         }

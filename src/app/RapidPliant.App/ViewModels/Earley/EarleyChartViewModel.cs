@@ -25,10 +25,14 @@ namespace RapidPliant.App.ViewModels.Earley
 
             EarleySets = new ObservableCollection<EarleySetViewModel>(EarleyChart.EarleySets.Select(set=>new EarleySetViewModel().LoadFromEarleySet(set)));
 
+            //RefreshActiveSet();
+
             return this;
         }
-
+        
         public ObservableCollection<EarleySetViewModel> EarleySets { get { return get(() => EarleySets); } set { set(() => EarleySets, value); } }
+
+        public EarleySetViewModel ActiveEarleySet { get { return get(() => ActiveEarleySet); } set { set(() => ActiveEarleySet, value); } }
 
         public EarleySetViewModel GetEarleySet(int location)
         {
@@ -49,11 +53,35 @@ namespace RapidPliant.App.ViewModels.Earley
         public void RefreshFromChart()
         {
             //Add any new earley sets!
-            var count = EarleyChart.Count;
-            for (var i = EarleySets.Count - 1; i < count; ++i)
+            if (EarleyChart != null)
             {
-                var earleySet = EarleyChart.EarleySets[i];
-                EarleySets.Add(new EarleySetViewModel().LoadFromEarleySet(earleySet));
+                var count = EarleyChart.Count;
+                for (var i = EarleySets.Count; i < count; ++i)
+                {
+                    var earleySet = EarleyChart.EarleySets[i];
+                    var earleySetVm = new EarleySetViewModel().LoadFromEarleySet(earleySet);
+                    EarleySets.Add(earleySetVm);
+
+                    //RefreshActiveSet();
+                }
+            }
+        }
+
+        private void RefreshActiveSet()
+        {
+            var newActive = EarleySets.LastOrDefault();
+            if(newActive == null)
+                return;
+            
+            if (newActive != ActiveEarleySet)
+            {
+                if(ActiveEarleySet != null)
+                    ActiveEarleySet.IsCurrent = false;
+
+                ActiveEarleySet = newActive;
+
+                if(ActiveEarleySet != null)
+                    ActiveEarleySet.IsCurrent = true;
             }
         }
 

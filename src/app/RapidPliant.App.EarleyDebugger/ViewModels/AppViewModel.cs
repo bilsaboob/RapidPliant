@@ -25,6 +25,9 @@ namespace RapidPliant.App.EarleyDebugger.ViewModels
         {
             //Reset the parse input
             ParseInput = "";
+
+            ParseEngine = ParseRunner.ParseEngine;
+            EarleyChart = ParseRunner.EarleyChart;
         }
 
         public ParseRunnerViewModel ParseRunner
@@ -41,14 +44,21 @@ namespace RapidPliant.App.EarleyDebugger.ViewModels
 
         public EarleyChartViewModel EarleyChart
         {
-            get { return get(() => ParseEngine.EarleyChart); }
-            set { set(() => ParseEngine.EarleyChart, value); }
+            get { return get(() => EarleyChart); }
+            set { set(() => EarleyChart, value); }
         }
 
         public string ParseInput
         {
-            get { return get(() => ParseRunner.ParseInput); }
-            set { set(() => ParseRunner.ParseInput, value); }
+            get { return get(() => ParseInput); }
+            set
+            {
+                if (ParseRunner != null)
+                {
+                    ParseRunner.ParseInput = value;
+                }
+                set(() => ParseInput, value);
+            }
         }
     }
 }
