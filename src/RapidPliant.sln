@@ -75,11 +75,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Msagl.Drawing", "..\externa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Msagl.WpfGraphControl", "..\external_libs\Msagl\Msagl.WpfGraphControl\Msagl.WpfGraphControl.csproj", "{FCE1D24E-CC6B-47BC-9CE4-427E5D56B71E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04 - rapibnf", "04 - rapibnf", "{C1F9B475-F2E5-41A0-A52B-BA4F0BA5C76F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04 - rapidbnf", "04 - rapidbnf", "{C1F9B475-F2E5-41A0-A52B-BA4F0BA5C76F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RapidPliant.RapidBnf", "rapidbnf\RapidPliant.RapidBnf\RapidPliant.RapidBnf.csproj", "{84C7DE2B-4664-42BF-AF84-3C0658D6AAF4}"
 EndProject
 Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		CutRelease|Any CPU = CutRelease|Any CPU
 		CutRelease|x64 = CutRelease|x64
